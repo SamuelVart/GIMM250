@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: f8f7fe803fc5e46d895863beafcded61
+guid: 9735638e1fee24eeeab923b34ca9d12c
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -1938292820786690205
-    second: Pannel 1_0
+      213: 124551112468906762
+    second: Outside_House_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -126,7 +126,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Pannel 1_0
+      name: Outside_House_0
       rect:
         serializedVersion: 2
         x: 0
@@ -141,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 367c152f2fcc915e0800000000000000
-      internalID: -1938292820786690205
+      spriteID: a03c61fa39e7ab100800000000000000
+      internalID: 124551112468906762
       vertices: []
       indices: 
       edges: []
