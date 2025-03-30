@@ -10,10 +10,17 @@ public class PlayerController : MonoBehaviour
 
     public Vector2 direction;
     private Rigidbody2D rb;
+    
+    private Animator animator;
+    private SpriteRenderer spriteRenderer;
+
     [SerializeField]private bool isGrounded;
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        animator = GetComponent<Animator>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
+
     }
 
     
@@ -28,6 +35,16 @@ public class PlayerController : MonoBehaviour
         {
             rb.linearVelocity = new Vector2(rb.linearVelocityX, jumpForce);
         }
+        
+        // Flip sprite based on direction
+        if (direction.x != 0)
+        {
+            spriteRenderer.flipX = direction.x < 0;
+        }
+
+        // Set walking animation
+        animator.SetBool("isWalking", direction.x != 0);
+
     }
 
     void FixedUpdate()
