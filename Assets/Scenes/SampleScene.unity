@@ -1839,7 +1839,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   transitionAnimator: {fileID: 0}
-  sceneToLoad: TestScene
+  sceneToLoad: House
 --- !u!4 &1128573357
 Transform:
   m_ObjectHideFlags: 0
