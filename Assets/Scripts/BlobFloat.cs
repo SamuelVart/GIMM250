@@ -1,66 +1,75 @@
-using Unity.VisualScripting;
 using UnityEngine;
-using static UnityEngine.GraphicsBuffer;
 
 public class BlobFloat : MonoBehaviour
 {
-
-    public float speed = 2f;           // Movement speed
-    public float stopDistance = 0.01f; // How close is "close enough"
+    public float speed = 2f;
+    public float stopDistance = 0.01f;
 
     private float wanderSpeed;
     private Vector2 wanderPosition;
     private bool changePosition;
-    
-    [SerializeField]
-    private Transform wanderPoint;
 
+    [SerializeField] private Transform wanderPoint;
     public LayerMask blobLayer;
 
-    [SerializeField]
-    private float waitTime;
+    [SerializeField] private float waitTime;
+    [SerializeField] private float maxX, maxY, minX, minY;
 
-    [SerializeField]
-    private float maxX, maxY, minX, minY;
+    [SerializeField] private TextMesh trueStateLabel; // reference to the label
+    public string trueState = "JOY"; // Set from elsewhere or randomized
+    private bool isHovered = false;
+
+    private SpriteRenderer spriteRenderer;
+    private Color defaultColor;
+    public Color hoverColor = Color.cyan;
+
+    public string[] possibleStates = { "JOY", "FEAR", "ANGER", "DOUBT" };
 
     void Start()
     {
-        
-    }
+        waitTime = Random.Range(1f, 3f);
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        defaultColor = spriteRenderer.color;
+        trueState = possibleStates[Random.Range(0, possibleStates.Length)];
 
+        if (trueStateLabel != null)
+        {
+            trueStateLabel.text = "";
+            trueStateLabel.gameObject.SetActive(false);
+        }
+    }
 
     void Update()
     {
         if (WanderPoint())
         {
-            // Blob has reached the wander point — now wait
             waitTime -= Time.deltaTime;
 
             if (waitTime <= 0 && !changePosition)
             {
                 ChangePosition();
-                waitTime = Random.Range(1f, 3f); // or your desired wait range
+                waitTime = Random.Range(1f, 3f);
                 changePosition = true;
             }
         }
         else
         {
-            // Reset so blob is ready to choose new point after reaching destination
             changePosition = false;
         }
     }
 
     private void FixedUpdate()
     {
-        MoveToPosition();
+        if (!isHovered) // don't move while being hovered
+        {
+            MoveToPosition();
+        }
     }
 
     void MoveToPosition()
     {
-        // Calculate distance
         float distance = Vector3.Distance(transform.position, wanderPoint.position);
 
-        // Move only if we're not close enough
         if (distance > stopDistance)
         {
             transform.position = Vector3.MoveTowards(
@@ -83,9 +92,29 @@ public class BlobFloat : MonoBehaviour
         return Physics2D.OverlapCircle(wanderPoint.position, 0.1f, blobLayer);
     }
 
-    bool ShouldWander()
+    // ==== Hover Logic ====
+
+    public void OnHoverEnter()
     {
-        return waitTime < 0;
+        isHovered = true;
+        spriteRenderer.color = hoverColor;
+
+        if (trueStateLabel != null)
+        {
+            trueStateLabel.text = trueState;
+            trueStateLabel.gameObject.SetActive(true);
+        }
     }
 
+    public void OnHoverExit()
+    {
+        isHovered = false;
+        spriteRenderer.color = defaultColor;
+
+        if (trueStateLabel != null)
+        {
+            trueStateLabel.text = "";
+            trueStateLabel.gameObject.SetActive(false);
+        }
+    }
 }
