@@ -135,6 +135,19 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: VisionOS
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
@@ -143,7 +156,7 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 0
-        y: 32
+        y: 80
         width: 16
         height: 16
       alignment: 0
@@ -165,7 +178,7 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 16
-        y: 32
+        y: 80
         width: 16
         height: 16
       alignment: 0
@@ -176,7 +189,7 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 6df6e6834ad125849bb2122b8b0ec3a7
+      spriteID: e03b60ca230f5488d899e26d0f2c27d0
       internalID: -1100781001
       vertices: []
       indices: 
@@ -187,7 +200,7 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 32
-        y: 32
+        y: 80
         width: 16
         height: 16
       alignment: 0
@@ -198,7 +211,7 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: a9d723894ac24564ca2304bd305b6da7
+      spriteID: 8b3b3e333048a4cdfb2fda0383b3c42b
       internalID: 110337833
       vertices: []
       indices: 
@@ -209,6 +222,204 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 48
+        y: 80
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: dd2390894be61473a9d136eb794928af
+      internalID: -341727300
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: StomachGround_4
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 64
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7120f8d6e1aad4600918645b83355716
+      internalID: 1240778501
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: StomachGround_5
+      rect:
+        serializedVersion: 2
+        x: 16
+        y: 64
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e20d002fcbf0b445b9ca329bbaa5c0a3
+      internalID: -1777844841
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: StomachGround_6
+      rect:
+        serializedVersion: 2
+        x: 32
+        y: 64
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 23b29c84dfdaf4dc7a31ca0a2cfdf4b5
+      internalID: 855418717
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: StomachGround_7
+      rect:
+        serializedVersion: 2
+        x: 48
+        y: 64
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a3b5e802b87bb4f88b8e8fe31d66ba75
+      internalID: 1258923149
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: StomachGround_8
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 48
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4c6195e2bebec4ce29edcbcc9b2b2fd0
+      internalID: -353925499
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: StomachGround_9
+      rect:
+        serializedVersion: 2
+        x: 16
+        y: 48
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0eb67cb38fa7440d29e21959ab2fa3bb
+      internalID: -1528272096
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: StomachGround_10
+      rect:
+        serializedVersion: 2
+        x: 32
+        y: 48
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ab78b424d8ede4bde890b13474b65b77
+      internalID: 1785180493
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: StomachGround_11
+      rect:
+        serializedVersion: 2
+        x: 48
+        y: 48
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e5b97a741b5e44b48a600a7ccbddcdcf
+      internalID: 1986734069
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: StomachGround_12
+      rect:
+        serializedVersion: 2
+        x: 0
         y: 32
         width: 16
         height: 16
@@ -220,14 +431,80 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: e78a391cc962052448305296201b46c9
-      internalID: -341727300
+      spriteID: 19ff00c9e8d33431aaa9c42c57c59d38
+      internalID: 59380876
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: StomachGround_4
+      name: StomachGround_13
+      rect:
+        serializedVersion: 2
+        x: 16
+        y: 32
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 06f351fc615c74db6925af663ab2e92d
+      internalID: 224609131
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: StomachGround_14
+      rect:
+        serializedVersion: 2
+        x: 32
+        y: 32
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 48bd7642cad9042d5a24158aa2629cf2
+      internalID: 2117322323
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: StomachGround_15
+      rect:
+        serializedVersion: 2
+        x: 48
+        y: 32
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ef56337e3d1ce47c6b6ac04fa7326e33
+      internalID: -780292319
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: StomachGround_16
       rect:
         serializedVersion: 2
         x: 0
@@ -242,14 +519,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 0ac6409d1e481344aac93285e36cb1f4
-      internalID: 1240778501
+      spriteID: e2c6a17f748be41caacaabf66e03a453
+      internalID: 1904722157
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: StomachGround_5
+      name: StomachGround_17
       rect:
         serializedVersion: 2
         x: 16
@@ -264,14 +541,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 82d21eb74471f674fa8a1f000c60c1d0
-      internalID: -1777844841
+      spriteID: ef8e8d49ffcf34c6099583763cf4f860
+      internalID: 1790250514
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: StomachGround_6
+      name: StomachGround_18
       rect:
         serializedVersion: 2
         x: 32
@@ -286,14 +563,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 5d2cba85241e4bb4a8adcb9c40b50aa0
-      internalID: 855418717
+      spriteID: 2c0f6ce0c32f54b93a1dc7bcad5d1833
+      internalID: 978867955
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: StomachGround_7
+      name: StomachGround_19
       rect:
         serializedVersion: 2
         x: 48
@@ -308,14 +585,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: c0015536785e29a47af6f26a59d0ec09
-      internalID: 1258923149
+      spriteID: 6beba697d4906453198bcf8b01f5e6af
+      internalID: 613964062
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: StomachGround_8
+      name: StomachGround_20
       rect:
         serializedVersion: 2
         x: 0
@@ -330,14 +607,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 4399cb926516db040a12fd6376a92981
-      internalID: -353925499
+      spriteID: 06881e83c564341d5b3acbf40054e2ae
+      internalID: -613493915
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: StomachGround_9
+      name: StomachGround_21
       rect:
         serializedVersion: 2
         x: 16
@@ -352,14 +629,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 5fca9b93978c90a478935d6a30395989
-      internalID: -1528272096
+      spriteID: 8432edbbac0074332b4284ece78f2234
+      internalID: -1464740650
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: StomachGround_10
+      name: StomachGround_22
       rect:
         serializedVersion: 2
         x: 32
@@ -374,14 +651,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 6e67fcaf5d968174da4381aa7a1f5274
-      internalID: 1785180493
+      spriteID: 207a45611646b43438ba507187f78f4e
+      internalID: 28091252
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: StomachGround_11
+      name: StomachGround_23
       rect:
         serializedVersion: 2
         x: 48
@@ -396,8 +673,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 179498a4b4c1847458f138e9a4c79252
-      internalID: 1986734069
+      spriteID: 7787e8c2a970645b4ba20a982d5b6935
+      internalID: -1624671865
       vertices: []
       indices: 
       edges: []
@@ -420,7 +697,19 @@ TextureImporter:
       StomachGround_1: -1100781001
       StomachGround_10: 1785180493
       StomachGround_11: 1986734069
+      StomachGround_12: 59380876
+      StomachGround_13: 224609131
+      StomachGround_14: 2117322323
+      StomachGround_15: -780292319
+      StomachGround_16: 1904722157
+      StomachGround_17: 1790250514
+      StomachGround_18: 978867955
+      StomachGround_19: 613964062
       StomachGround_2: 110337833
+      StomachGround_20: -613493915
+      StomachGround_21: -1464740650
+      StomachGround_22: 28091252
+      StomachGround_23: -1624671865
       StomachGround_3: -341727300
       StomachGround_4: 1240778501
       StomachGround_5: -1777844841
