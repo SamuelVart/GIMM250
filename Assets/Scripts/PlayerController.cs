@@ -2,53 +2,95 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
+    [Header("Movement Settings")]
+    public float speed = 5f;
+    public float jumpForce = 8f;
 
-    public float speed;
-    public float jumpForce;
-    public Transform groundCheck; // Empty object at feet
-    public LayerMask groundLayer; // Define what is "ground"
+    [Header("Ground Check")]
+    public Transform groundCheck; // Empty GameObject at feet
+    public LayerMask groundLayer;
+    public float groundCheckRadius = 0.1f;
 
-    public Vector2 direction;
+    [Header("Interaction")]
+    public float interactionRadius = 1.5f;
+
     private Rigidbody2D rb;
-    
     private Animator animator;
     private SpriteRenderer spriteRenderer;
 
-    [SerializeField]private bool isGrounded;
-    void Start()
+    private Vector2 direction;
+    private bool isGrounded;
+
+    private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
-
     }
 
-    
-    void Update()
+    private void Update()
     {
-        direction = new Vector2(Input.GetAxisRaw("Horizontal"), 0);
-        
-        isGrounded = Physics2D.OverlapCircle(groundCheck.position, 0.1f, groundLayer);
+        // Movement input
+        direction = new Vector2(Input.GetAxisRaw("Horizontal"), 0f);
 
-        // Jumping logic
-        if (Input.GetButton("Jump") && isGrounded)
+        // Ground check
+        isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
+
+        // Jumping
+        if (Input.GetButtonDown("Jump") && isGrounded)
         {
-            rb.linearVelocity = new Vector2(rb.linearVelocityX, jumpForce);
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
         }
-        
-        // Flip sprite based on direction
+
+        // Flip sprite
         if (direction.x != 0)
         {
             spriteRenderer.flipX = direction.x < 0;
         }
 
-        // Set walking animation
-        animator.SetBool("isWalking", direction.x != 0);
+        // Animator update
+        if (animator != null)
+        {
+            animator.SetBool("isWalking", direction.x != 0);
+        }
 
+        // Lever interaction
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            TryActivateLever();
+        }
     }
 
-    void FixedUpdate()
+    private void FixedUpdate()
     {
-        rb.linearVelocity = new Vector2(direction.x * speed, rb.linearVelocityY);
+        rb.linearVelocity = new Vector2(direction.x * speed, rb.linearVelocity.y);
+    }
+
+    private void TryActivateLever()
+    {
+        Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, interactionRadius);
+        foreach (var hit in hits)
+        {
+            LeverController lever = hit.GetComponent<LeverController>();
+            if (lever != null)
+            {
+                lever.ActivateLever();
+                return;
+            }
+        }
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        // Visualize ground check
+        if (groundCheck != null)
+        {
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawWireSphere(groundCheck.position, groundCheckRadius);
+        }
+
+        // Visualize lever interaction
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawWireSphere(transform.position, interactionRadius);
     }
 }
