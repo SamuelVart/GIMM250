@@ -24,6 +24,9 @@ EditorBuildSettings:
     path: Assets/Scenes/Panel4.unity
     guid: 4376310517ba942f295376bf7881e4b9
   - enabled: 1
+    path: Assets/Scenes/Panel5.unity
+    guid: bc5ae8e8e717742dcbdb5e0095aaa648
+  - enabled: 1
     path: Assets/Scenes/TestScene.unity
     guid: 7252cc5fddf794f409548b585f83d55f
   m_configObjects:
