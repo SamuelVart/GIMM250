@@ -228,7 +228,8 @@ MonoBehaviour:
   lines:
   - Hello asfs
   - This is mee
-  textSpeed: 0.3
+  textSpeed: 0.1
+  pauseAnimation: {fileID: 0}
 --- !u!1 &3308064639783642042
 GameObject:
   m_ObjectHideFlags: 0
