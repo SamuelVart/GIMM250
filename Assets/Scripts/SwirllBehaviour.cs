@@ -13,6 +13,7 @@ public class SwirlBehavior : MonoBehaviour
     private bool isConnected = false;
     private bool wasCancelled = false;
 
+    private SwirlBehavior connectedSwirl = null;
 
     public int swirlID;
     public Color hoverColor = Color.cyan;
@@ -54,6 +55,19 @@ public class SwirlBehavior : MonoBehaviour
     {
         transform.Rotate(0f, 0f, direction * rotationSpeed * Time.deltaTime);
 
+        // Monitor active connection
+        if (isConnected && connectedSwirl != null)
+        {
+            RaycastHit2D hit = Physics2D.Linecast(transform.position, connectedSwirl.transform.position, Physics2D.DefaultRaycastLayers);
+            if (hit.collider != null && hit.collider.CompareTag("Door"))
+            {
+                Debug.Log("Connected line hit by door — breaking connection.");
+                BreakConnection();
+                connectedSwirl.BreakConnection();
+            }
+        }
+
+        // Drag logic
         if (isDragging && !isConnected)
         {
             Vector3 mousePos3D = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -66,7 +80,7 @@ public class SwirlBehavior : MonoBehaviour
             }
 
             if (selfCollider != null)
-                selfCollider.enabled = false; // 🔥 Disable self collider
+                selfCollider.enabled = false;
 
             Vector2 origin = transform.position;
             Vector2 directionVector = (mousePos - origin).normalized;
@@ -75,17 +89,12 @@ public class SwirlBehavior : MonoBehaviour
             RaycastHit2D hit = Physics2D.CircleCast(origin, 0.1f, directionVector, distance);
 
             if (selfCollider != null)
-                selfCollider.enabled = true; // 🔥 Re-enable self collider immediately after cast
+                selfCollider.enabled = true;
 
-            if (hit.collider != null)
+            if (hit.collider != null && hit.collider.CompareTag("Door"))
             {
-                Debug.Log("Hit: " + hit.collider.name);
-
-                if (hit.collider.CompareTag("Door"))
-                {
-                    Debug.Log("Line hit door — cancelling.");
-                    CancelDrag();
-                }
+                Debug.Log("Line hit door — cancelling.");
+                CancelDrag();
             }
         }
     }
@@ -110,11 +119,10 @@ public class SwirlBehavior : MonoBehaviour
 
     private void OnMouseDown()
     {
-        wasCancelled = false;
-        
         if (isConnected) return;
 
         isDragging = true;
+        wasCancelled = false;
 
         if (lineRenderer != null)
         {
@@ -127,14 +135,11 @@ public class SwirlBehavior : MonoBehaviour
 
     private void OnMouseUp()
     {
-        if (wasCancelled)
+        if (isConnected || wasCancelled)
         {
-            Debug.Log("Connection attempt ignored — previous drag was cancelled.");
-            wasCancelled = false; // reset
+            wasCancelled = false;
             return;
         }
-        
-        if (isConnected) return;
 
         isDragging = false;
 
@@ -142,7 +147,6 @@ public class SwirlBehavior : MonoBehaviour
         Vector2 mousePos = new Vector2(mousePos3D.x, mousePos3D.y);
 
         Collider2D[] hits = Physics2D.OverlapCircleAll(mousePos, 0.5f);
-
         bool connected = false;
 
         foreach (Collider2D hit in hits)
@@ -153,14 +157,19 @@ public class SwirlBehavior : MonoBehaviour
 
                 if (otherSwirl != null && IsValidConnection(this.swirlID, otherSwirl.swirlID) && !otherSwirl.isConnected)
                 {
+                    // Connect
                     if (lineRenderer != null)
                     {
                         lineRenderer.SetPosition(1, otherSwirl.transform.position);
+                        lineRenderer.enabled = true;
                     }
 
                     connected = true;
                     this.isConnected = true;
+                    this.connectedSwirl = otherSwirl;
+
                     otherSwirl.isConnected = true;
+                    otherSwirl.connectedSwirl = this;
 
                     connectionCounter++;
 
@@ -204,7 +213,7 @@ public class SwirlBehavior : MonoBehaviour
         Debug.Log("Line blocked by closed door — cancelling drag.");
 
         isDragging = false;
-        wasCancelled = true; // 🔥 mark this drag as invalid
+        wasCancelled = true;
 
         if (lineRenderer != null)
         {
@@ -216,6 +225,17 @@ public class SwirlBehavior : MonoBehaviour
         spriteRenderer.color = originalColor;
     }
 
+    public void BreakConnection()
+    {
+        isConnected = false;
+        connectedSwirl = null;
+
+        if (lineRenderer != null)
+        {
+            lineRenderer.enabled = false;
+            lineRenderer.positionCount = 0;
+        }
+    }
 
     private void PuzzleComplete()
     {
