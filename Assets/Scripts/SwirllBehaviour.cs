@@ -11,6 +11,8 @@ public class SwirlBehavior : MonoBehaviour
     private Color originalColor;
     private bool isDragging = false;
     private bool isConnected = false;
+    private bool wasCancelled = false;
+
 
     public int swirlID;
     public Color hoverColor = Color.cyan;
@@ -108,6 +110,8 @@ public class SwirlBehavior : MonoBehaviour
 
     private void OnMouseDown()
     {
+        wasCancelled = false;
+        
         if (isConnected) return;
 
         isDragging = true;
@@ -123,6 +127,13 @@ public class SwirlBehavior : MonoBehaviour
 
     private void OnMouseUp()
     {
+        if (wasCancelled)
+        {
+            Debug.Log("Connection attempt ignored — previous drag was cancelled.");
+            wasCancelled = false; // reset
+            return;
+        }
+        
         if (isConnected) return;
 
         isDragging = false;
@@ -193,6 +204,7 @@ public class SwirlBehavior : MonoBehaviour
         Debug.Log("Line blocked by closed door — cancelling drag.");
 
         isDragging = false;
+        wasCancelled = true; // 🔥 mark this drag as invalid
 
         if (lineRenderer != null)
         {
@@ -203,6 +215,7 @@ public class SwirlBehavior : MonoBehaviour
         transform.localScale = originalScale;
         spriteRenderer.color = originalColor;
     }
+
 
     private void PuzzleComplete()
     {
