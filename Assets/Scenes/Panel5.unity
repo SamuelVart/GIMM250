@@ -237,7 +237,7 @@ PrefabInstance:
       objectReference: {fileID: 1252924634}
     - target: {fileID: 2540489492279354990, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
       propertyPath: lines.Array.size
-      value: 8
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 2540489492279354990, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
       propertyPath: 'lines.Array.data[0]'
@@ -278,9 +278,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2540489492279354990, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
       propertyPath: 'lines.Array.data[8]'
-      value: ' Friend: Don''t you think you''re being a little arrogant? Just because
-        you have nice shades now doesn''t mean you''re a better soccer player than
-        we are.'
+      value: ' Blob: What? Are you afraid of losing to me?'
+      objectReference: {fileID: 0}
+    - target: {fileID: 2540489492279354990, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
+      propertyPath: 'lines.Array.data[9]'
+      value: ' Friend: Bye, Blob.'
       objectReference: {fileID: 0}
     - target: {fileID: 4568803954467895401, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
       propertyPath: m_SizeDelta.y
