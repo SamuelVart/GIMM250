@@ -366,7 +366,25 @@ PrefabInstance:
       objectReference: {fileID: 13670483}
     - target: {fileID: 2540489492279354990, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
       propertyPath: lines.Array.size
-      value: 1
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 2540489492279354990, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
+      propertyPath: 'lines.Array.data[0]'
+      value: ' Blob: Hey guys, I have to apologize to you. I was a jerk last time.'
+      objectReference: {fileID: 0}
+    - target: {fileID: 2540489492279354990, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
+      propertyPath: 'lines.Array.data[1]'
+      value: ' Friend: Yeah. You were super weird. But don''t worry about it. Are
+        you ready to play some soccer?'
+      objectReference: {fileID: 0}
+    - target: {fileID: 2540489492279354990, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
+      propertyPath: 'lines.Array.data[2]'
+      value: ' Blob: Hell, yeah! It''s been way too long. I''ll take you out for
+        ice cream after the game.'
+      objectReference: {fileID: 0}
+    - target: {fileID: 2540489492279354990, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
+      propertyPath: 'lines.Array.data[3]'
+      value: ' Friend: Oh really? That sounds awesome. Thanks a lot, Blob!'
       objectReference: {fileID: 0}
     - target: {fileID: 9195412974942093818, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
       propertyPath: m_LocalPosition.x

@@ -274,7 +274,63 @@ PrefabInstance:
       objectReference: {fileID: 833704535}
     - target: {fileID: 2540489492279354990, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
       propertyPath: lines.Array.size
-      value: 1
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 2540489492279354990, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
+      propertyPath: 'lines.Array.data[0]'
+      value: ' Friend: Hey Blob, are you ready to play some soccer?'
+      objectReference: {fileID: 0}
+    - target: {fileID: 2540489492279354990, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
+      propertyPath: 'lines.Array.data[1]'
+      value: " Blob: After careful consideration, I believe we should engage in a
+        more intellectually stimulating pursuit\u2014namely, chess."
+      objectReference: {fileID: 0}
+    - target: {fileID: 2540489492279354990, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
+      propertyPath: 'lines.Array.data[2]'
+      value: " Blob: It\u2019s a game that activates multiple cognitive domains,
+        including the prefrontal cortex for strategic planning and the parietal lobes
+        for spatial processing."
+      objectReference: {fileID: 0}
+    - target: {fileID: 2540489492279354990, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
+      propertyPath: 'lines.Array.data[3]'
+      value: ' Blob: The interplay between long-term foresight and immediate tactical
+        response creates a dynamic, neurologically enriching experience.'
+      objectReference: {fileID: 0}
+    - target: {fileID: 2540489492279354990, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
+      propertyPath: 'lines.Array.data[4]'
+      value: ' Blob: The interplay between long-term foresight and immediate tactical
+        response creates a dynamic, neurologically enriching experience.'
+      objectReference: {fileID: 0}
+    - target: {fileID: 2540489492279354990, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
+      propertyPath: 'lines.Array.data[5]'
+      value: ' Friend: What? I don''t understand what you''re saying. But Blob, we
+        just want to have some fun. We are not in school.'
+      objectReference: {fileID: 0}
+    - target: {fileID: 2540489492279354990, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
+      propertyPath: 'lines.Array.data[6]'
+      value: " Blob: Learning is a perpetual, asymptotic process\u2014one that fundamentally
+        distinguishes cognitively evolved entities such as myself from the more rudimentary
+        organisms in the taxonomic hierarchy."
+      objectReference: {fileID: 0}
+    - target: {fileID: 2540489492279354990, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
+      propertyPath: 'lines.Array.data[7]'
+      value: " Blob: It is through the continuous acquisition, integration, and refinement
+        of information that beings like me\u2014Blob\u2014transcend mere existence.
+        To cease learning is to embrace stagnation."
+      objectReference: {fileID: 0}
+    - target: {fileID: 2540489492279354990, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
+      propertyPath: 'lines.Array.data[8]'
+      value: ' Blob: Thus, we must persist in our pursuit of cognitive expansion,
+        epistemological depth, and the relentless optimization of intellectual capacity.'
+      objectReference: {fileID: 0}
+    - target: {fileID: 2540489492279354990, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
+      propertyPath: 'lines.Array.data[9]'
+      value: ' Friend: If you don''t want to play with us, that''s fine. We can meet
+        another day. But we don''t want to study now.'
+      objectReference: {fileID: 0}
+    - target: {fileID: 2540489492279354990, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
+      propertyPath: 'lines.Array.data[10]'
+      value: ' Friend: Sorry Blob. See you next time.'
       objectReference: {fileID: 0}
     - target: {fileID: 9195412974942093818, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
       propertyPath: m_LocalPosition.x
