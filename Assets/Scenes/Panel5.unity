@@ -223,17 +223,72 @@ PrefabInstance:
       propertyPath: m_Name
       value: DialogueSystem
       objectReference: {fileID: 0}
+    - target: {fileID: 1628348876897381454, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: -897.3525
+      objectReference: {fileID: 0}
+    - target: {fileID: 1628348876897381454, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 398.67627
+      objectReference: {fileID: 0}
     - target: {fileID: 2540489492279354990, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
       propertyPath: pauseAnimation
       value: 
       objectReference: {fileID: 1252924634}
     - target: {fileID: 2540489492279354990, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
       propertyPath: lines.Array.size
-      value: 1
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 2540489492279354990, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
       propertyPath: 'lines.Array.data[0]'
-      value: ' Hola Blob'
+      value: ' Friend: Hey Blob, how are you? Are you ready to play soccer with us?'
+      objectReference: {fileID: 0}
+    - target: {fileID: 2540489492279354990, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
+      propertyPath: 'lines.Array.data[1]'
+      value: ' Blob: Haven''t you noticed my amazing shades? It might be a little
+        unfair for us to play as usual. How about this time I play you both at the
+        same time.'
+      objectReference: {fileID: 0}
+    - target: {fileID: 2540489492279354990, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
+      propertyPath: 'lines.Array.data[2]'
+      value: ' Friend: What? What are you talking about?'
+      objectReference: {fileID: 0}
+    - target: {fileID: 2540489492279354990, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
+      propertyPath: 'lines.Array.data[3]'
+      value: ' Blob: You know, Team Gray vs. Team Shades.'
+      objectReference: {fileID: 0}
+    - target: {fileID: 2540489492279354990, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
+      propertyPath: 'lines.Array.data[4]'
+      value: ' Friend: Don''t you think you''re being a little arrogant? Just because
+        you have nice shades now doesn''t mean you''re a better soccer player than
+        we are.'
+      objectReference: {fileID: 0}
+    - target: {fileID: 2540489492279354990, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
+      propertyPath: 'lines.Array.data[5]'
+      value: ' Blob: We''ll see about that.'
+      objectReference: {fileID: 0}
+    - target: {fileID: 2540489492279354990, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
+      propertyPath: 'lines.Array.data[6]'
+      value: ' Friend: I don''t know. I don''t think it''s fun to play with you when
+        you talk like that.'
+      objectReference: {fileID: 0}
+    - target: {fileID: 2540489492279354990, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
+      propertyPath: 'lines.Array.data[7]'
+      value: ' Friend: Yeah. Let''s play some other time.'
+      objectReference: {fileID: 0}
+    - target: {fileID: 2540489492279354990, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
+      propertyPath: 'lines.Array.data[8]'
+      value: ' Friend: Don''t you think you''re being a little arrogant? Just because
+        you have nice shades now doesn''t mean you''re a better soccer player than
+        we are.'
+      objectReference: {fileID: 0}
+    - target: {fileID: 4568803954467895401, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 151.32
+      objectReference: {fileID: 0}
+    - target: {fileID: 4568803954467895401, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0.000012398
       objectReference: {fileID: 0}
     - target: {fileID: 9195412974942093818, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
       propertyPath: m_LocalPosition.x

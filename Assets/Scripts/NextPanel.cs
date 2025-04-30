@@ -15,4 +15,9 @@ public class AnimationSceneChanger : MonoBehaviour
     {
         SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().buildIndex + 1);
     }
+    
+    public void backToMainMenu(int sceneIndex)
+    {
+        SceneManager.LoadSceneAsync(sceneIndex);
+    }
 }
