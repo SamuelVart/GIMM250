@@ -119,7 +119,7 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &85241611
+--- !u!1 &303979944
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -127,9 +127,9 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 85241614}
-  - component: {fileID: 85241613}
-  - component: {fileID: 85241612}
+  - component: {fileID: 303979947}
+  - component: {fileID: 303979946}
+  - component: {fileID: 303979945}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -137,21 +137,21 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!81 &85241612
+--- !u!81 &303979945
 AudioListener:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 85241611}
+  m_GameObject: {fileID: 303979944}
   m_Enabled: 1
---- !u!20 &85241613
+--- !u!20 &303979946
 Camera:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 85241611}
+  m_GameObject: {fileID: 303979944}
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 1
@@ -196,13 +196,13 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
---- !u!4 &85241614
+--- !u!4 &303979947
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 85241611}
+  m_GameObject: {fileID: 303979944}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: -10}
@@ -211,7 +211,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1001 &483592641
+--- !u!1001 &1056433131
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -223,74 +223,18 @@ PrefabInstance:
       propertyPath: m_Name
       value: DialogueSystem
       objectReference: {fileID: 0}
-    - target: {fileID: 1628348876897381454, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
-      propertyPath: m_SizeDelta.y
-      value: -897.3525
-      objectReference: {fileID: 0}
-    - target: {fileID: 1628348876897381454, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 398.67627
-      objectReference: {fileID: 0}
     - target: {fileID: 2540489492279354990, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
       propertyPath: pauseAnimation
       value: 
-      objectReference: {fileID: 1252924634}
+      objectReference: {fileID: 2114487326}
     - target: {fileID: 2540489492279354990, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
       propertyPath: lines.Array.size
-      value: 10
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2540489492279354990, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
       propertyPath: 'lines.Array.data[0]'
-      value: ' Friend: Hey Blob, how are you? Are you ready to play soccer with us?'
-      objectReference: {fileID: 0}
-    - target: {fileID: 2540489492279354990, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
-      propertyPath: 'lines.Array.data[1]'
-      value: ' Blob: Haven''t you noticed my amazing shades? It might be a little
-        unfair for us to play as usual. How about this time I play you both at the
-        same time.'
-      objectReference: {fileID: 0}
-    - target: {fileID: 2540489492279354990, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
-      propertyPath: 'lines.Array.data[2]'
-      value: ' Friend: What? What are you talking about?'
-      objectReference: {fileID: 0}
-    - target: {fileID: 2540489492279354990, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
-      propertyPath: 'lines.Array.data[3]'
-      value: ' Blob: You know, Team Gray vs. Team Shades.'
-      objectReference: {fileID: 0}
-    - target: {fileID: 2540489492279354990, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
-      propertyPath: 'lines.Array.data[4]'
-      value: ' Friend: Don''t you think you''re being a little arrogant? Just because
-        you have nice shades now doesn''t mean you''re a better soccer player than
-        we are.'
-      objectReference: {fileID: 0}
-    - target: {fileID: 2540489492279354990, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
-      propertyPath: 'lines.Array.data[5]'
-      value: ' Blob: We''ll see about that.'
-      objectReference: {fileID: 0}
-    - target: {fileID: 2540489492279354990, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
-      propertyPath: 'lines.Array.data[6]'
-      value: ' Friend: I don''t know. I don''t think it''s fun to play with you when
-        you talk like that.'
-      objectReference: {fileID: 0}
-    - target: {fileID: 2540489492279354990, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
-      propertyPath: 'lines.Array.data[7]'
-      value: ' Friend: Yeah. Let''s play some other time.'
-      objectReference: {fileID: 0}
-    - target: {fileID: 2540489492279354990, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
-      propertyPath: 'lines.Array.data[8]'
-      value: ' Blob: What? Are you afraid of losing to me?'
-      objectReference: {fileID: 0}
-    - target: {fileID: 2540489492279354990, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
-      propertyPath: 'lines.Array.data[9]'
-      value: ' Friend: Bye, Blob.'
-      objectReference: {fileID: 0}
-    - target: {fileID: 4568803954467895401, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
-      propertyPath: m_SizeDelta.y
-      value: 151.32
-      objectReference: {fileID: 0}
-    - target: {fileID: 4568803954467895401, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 0.000012398
+      value: ' Blob seems happy again. A few days have passed, and Blob is about
+        to rejoin his friends.'
       objectReference: {fileID: 0}
     - target: {fileID: 9195412974942093818, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
       propertyPath: m_LocalPosition.x
@@ -337,10 +281,10 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
---- !u!114 &483592642 stripped
+--- !u!114 &1056433132 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 2540489492279354990, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
-  m_PrefabInstance: {fileID: 483592641}
+  m_PrefabInstance: {fileID: 1056433131}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
@@ -348,7 +292,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1dcd1486a6c0e416fb1c500b78e9a5ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!1 &1252924630
+--- !u!1 &2114487322
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -356,29 +300,29 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1252924633}
-  - component: {fileID: 1252924632}
-  - component: {fileID: 1252924631}
-  - component: {fileID: 1252924635}
-  - component: {fileID: 1252924634}
+  - component: {fileID: 2114487325}
+  - component: {fileID: 2114487324}
+  - component: {fileID: 2114487323}
+  - component: {fileID: 2114487327}
+  - component: {fileID: 2114487326}
   m_Layer: 0
-  m_Name: Panel_Animation_5_00000_0
+  m_Name: Panel_Animation_12_00000_0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!95 &1252924631
+--- !u!95 &2114487323
 Animator:
   serializedVersion: 7
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1252924630}
+  m_GameObject: {fileID: 2114487322}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 312b680d97b8847128746a42bde222cb, type: 2}
+  m_Controller: {fileID: 9100000, guid: 4775dc1b277504d8485d9342fb3c10ca, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -390,13 +334,13 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!212 &1252924632
+--- !u!212 &2114487324
 SpriteRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1252924630}
+  m_GameObject: {fileID: 2114487322}
   m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 0
@@ -434,7 +378,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 1424613592109001835, guid: cc160515c4c064349adc3c1e9f29b619, type: 3}
+  m_Sprite: {fileID: 4313523624652261663, guid: 03d59772845bc45a6accfd798b394c18, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -445,13 +389,13 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!4 &1252924633
+--- !u!4 &2114487325
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1252924630}
+  m_GameObject: {fileID: 2114487322}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -460,26 +404,26 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1252924634
+--- !u!114 &2114487326
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1252924630}
+  m_GameObject: {fileID: 2114487322}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 43225ef43c04b4727ad3e5c5cb3a1597, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dialogueSystem: {fileID: 483592642}
---- !u!114 &1252924635
+  dialogueSystem: {fileID: 1056433132}
+--- !u!114 &2114487327
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1252924630}
+  m_GameObject: {fileID: 2114487322}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 451f2827d938541328c85d0cea03b1f8, type: 3}
@@ -489,6 +433,6 @@ MonoBehaviour:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
-  - {fileID: 85241614}
-  - {fileID: 1252924633}
-  - {fileID: 483592641}
+  - {fileID: 303979947}
+  - {fileID: 2114487325}
+  - {fileID: 1056433131}
