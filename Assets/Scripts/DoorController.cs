@@ -41,6 +41,13 @@ public class DoorController : MonoBehaviour
 
         SetAlpha(closedAlpha);
         StartCoroutine(PunchScale(punchScaleAmount));
+        StartCoroutine(DelayedBreakCheck());
+    }
+
+    private IEnumerator DelayedBreakCheck()
+    {
+        yield return new WaitForFixedUpdate();
+        BreakIntersectingConnections();
     }
 
     private void SetAlpha(float alpha)
@@ -74,5 +81,59 @@ public class DoorController : MonoBehaviour
         }
 
         transform.localScale = originalScale;
+    }
+
+    private void BreakIntersectingConnections()
+    {
+        SwirlBehavior[] allSwirls = FindObjectsOfType<SwirlBehavior>();
+        NodeBehavior[] allNodes = FindObjectsOfType<NodeBehavior>();
+        RaycastHit2D[] hits = new RaycastHit2D[5];
+
+        // ✅ Break direct swirl-to-swirl connections
+        foreach (SwirlBehavior swirl in allSwirls)
+        {
+            SwirlBehavior connected = swirl.GetConnectedSwirl();
+            if (connected != null && swirl.IsConnectedTo(connected))
+            {
+                Vector2 start = swirl.transform.position;
+                Vector2 end = connected.transform.position;
+
+                int hitCount = Physics2D.LinecastNonAlloc(start, end, hits);
+                for (int i = 0; i < hitCount; i++)
+                {
+                    if (hits[i].collider == doorCollider)
+                    {
+                        Debug.Log($"[Door] Breaking swirl <-> swirl connection between {swirl.swirlID} and {connected.swirlID}");
+                        swirl.BreakConnection();
+                        connected.BreakConnection();
+                        break;
+                    }
+                }
+            }
+        }
+
+        // ✅ Break swirl-to-node or node-to-swirl connections
+        foreach (SwirlBehavior swirl in allSwirls)
+        {
+            foreach (var node in allNodes)
+            {
+                if (node != null && node.IsConnected)
+                {
+                    Vector2 start = swirl.transform.position;
+                    Vector2 end = node.transform.position;
+
+                    int hitCount = Physics2D.LinecastNonAlloc(start, end, hits);
+                    for (int i = 0; i < hitCount; i++)
+                    {
+                        if (hits[i].collider == doorCollider)
+                        {
+                            Debug.Log($"[Door] Breaking swirl <-> node connection from Swirl {swirl.swirlID}");
+                            node.Disconnect();
+                            break;
+                        }
+                    }
+                }
+            }
+        }
     }
 }
