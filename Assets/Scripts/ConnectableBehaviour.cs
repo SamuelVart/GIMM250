@@ -95,6 +95,16 @@ public abstract class ConnectableBehavior : MonoBehaviour
         ResetVisuals();
     }
 
+    protected void BeginDrag()
+    {
+        isDragging = true;
+        wasDragCancelled = false;
+        lineRenderer.enabled = true;
+        lineRenderer.positionCount = 2;
+        lineRenderer.SetPosition(0, transform.position);
+        lineRenderer.SetPosition(1, transform.position);
+    }
+
     private void CancelDrag()
     {
         isDragging              = false;

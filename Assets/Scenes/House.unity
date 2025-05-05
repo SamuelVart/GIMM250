@@ -149,7 +149,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   transitionAnimator: {fileID: 0}
-  sceneToLoad: SampleScene
+  sceneToLoad: Game2
 --- !u!4 &246240516
 Transform:
   m_ObjectHideFlags: 0

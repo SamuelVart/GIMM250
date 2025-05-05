@@ -26,25 +26,69 @@ public class NodeBehavior : ConnectableBehavior
     {
         base.Update();
 
-        // 1) if my original‐swirl link was broken by a door, clear it
-        if (parentSwirl != null &&
-            parentSwirl.GetConnectedNode() != this)
+        // ── 1) DOOR‐BREAK CHECKS ─────────────────────────────────────────
+        // a) break node↔node
+        if (parentNode != null)
+        {
+            var hit = Physics2D.Linecast(
+                transform.position,
+                parentNode.transform.position
+            );
+            if (hit.collider != null && hit.collider.CompareTag("Door"))
+            {
+                Debug.Log($"[Door] breaking node↔node on {name} ↔ {parentNode.name}");
+                BreakConnection();
+                return;
+            }
+        }
+
+        // b) break node↔parentSwirl
+        if (parentSwirl != null)
+        {
+            var hit = Physics2D.Linecast(
+                transform.position,
+                parentSwirl.transform.position
+            );
+            if (hit.collider != null && hit.collider.CompareTag("Door"))
+            {
+                Debug.Log($"[Door] breaking node↔swirl on {name} ↔ swirl {parentSwirl.swirlID}");
+                BreakConnection();
+                return;
+            }
+        }
+
+        // c) break parentNode→terminalSwirl
+        if (terminalSwirl != null)
+        {
+            Vector3 from = (parentNode != null)
+                ? parentNode.transform.position
+                : transform.position;
+
+            var hit = Physics2D.Linecast(
+                from,
+                terminalSwirl.transform.position
+            );
+            if (hit.collider != null && hit.collider.CompareTag("Door"))
+            {
+                Debug.Log($"[Door] breaking node→swirl terminal on {name} → swirl {terminalSwirl.swirlID}");
+                BreakConnection();
+                return;
+            }
+        }
+
+        // ── 2) STALE‐CONNECTION CLEANUP ───────────────────────────────────
+        if (parentSwirl != null && parentSwirl.GetConnectedNode() != this)
         {
             Debug.Log($"[Node] parentSwirl {parentSwirl.swirlID} lost, clearing");
             parentSwirl = null;
             ResetLine();
         }
-
-        // 2) if my terminal‐swirl link was broken, clear it
-        if (terminalSwirl != null &&
-            terminalSwirl.GetConnectedNode() != this)
+        if (terminalSwirl != null && terminalSwirl.GetConnectedNode() != this)
         {
             Debug.Log($"[Node] terminalSwirl {terminalSwirl.swirlID} lost, clearing");
             terminalSwirl = null;
             ResetLine();
         }
-
-        // 3) if my parent node was broken, drop back
         if (parentNode != null && !parentNode.IsConnected())
         {
             Debug.Log($"[Node] parentNode {parentNode.name} lost, clearing");
@@ -56,16 +100,10 @@ public class NodeBehavior : ConnectableBehavior
     protected override void OnMouseDown()
     {
         // PREVENT any drag if already hooked to a terminal swirl
-        if (terminalSwirl != null)
-        {
-            Debug.Log($"[Node] already connected to terminal swirl {terminalSwirl.swirlID}, cancelling new drag");
-            return;
-        }
+        if (terminalSwirl != null) return;
 
         float now = Time.time;
-
-        // double‐tap to sever this segment
-        if ((parentSwirl != null || parentNode != null || terminalSwirl != null) &&
+        if ((parentSwirl != null || parentNode != null) &&
             now - lastTapTime <= DoubleTapThreshold)
         {
             BreakConnection();
@@ -74,14 +112,14 @@ public class NodeBehavior : ConnectableBehavior
         }
         lastTapTime = now;
 
-        // decide if I may start a drag
         bool wasRootDisconnected =
             _originalSwirl != null &&
-            parentSwirl  == null &&
-            parentNode   == null;
+            parentSwirl == null &&
+            parentNode  == null;
 
         bool isOriginalSwirlNodeAttached =
-            parentSwirl == _originalSwirl;
+            _originalSwirl != null &&
+            parentSwirl   == _originalSwirl;
 
         bool isChildChainNode = parentNode != null;
 
@@ -99,7 +137,6 @@ public class NodeBehavior : ConnectableBehavior
             childNode = null;
         }
 
-        // begin drag/preview
         base.OnMouseDown();
     }
 
@@ -107,25 +144,28 @@ public class NodeBehavior : ConnectableBehavior
     {
         bool wasRootDisconnected =
             _originalSwirl != null &&
-            parentSwirl  == null &&
-            parentNode   == null;
+            parentSwirl == null &&
+            parentNode  == null;
 
         bool isOriginalSwirlNodeAttached =
-            parentSwirl == _originalSwirl;
+            _originalSwirl != null &&
+            parentSwirl   == _originalSwirl;
 
         bool isChildChainNode = parentNode != null;
 
-        // ─── 1) node→node chaining ───
+        // ─── 1) node→node chaining ────────────────────────────────────────
         if ((isOriginalSwirlNodeAttached || isChildChainNode || wasRootDisconnected)
              && hit.CompareTag("Node"))
         {
+            if (!lineRenderer.enabled)
+                return false;
+
             var target = hit.GetComponent<NodeBehavior>();
             if (target != null && !target.IsConnected())
             {
                 childNode = target;
                 target.SetParentNode(this);
 
-                // draw this → target
                 lineRenderer.enabled       = true;
                 lineRenderer.positionCount = 2;
                 lineRenderer.SetPosition(0, transform.position);
@@ -134,7 +174,7 @@ public class NodeBehavior : ConnectableBehavior
             }
         }
 
-        // ─── 2) terminal‐node→partner‐swirl ───
+        // ─── 2) terminal-node→partner-swirl ───────────────────────────────
         if (childNode == null && hit.CompareTag("Swirl"))
         {
             var droppedOn = hit.GetComponent<SwirlBehavior>();
@@ -142,17 +182,10 @@ public class NodeBehavior : ConnectableBehavior
             if (droppedOn != null && rootSwirl != null &&
                 rootSwirl.CanConnectTo(droppedOn))
             {
-                // count for puzzle
                 rootSwirl.RegisterNodeDrivenConnection(droppedOn);
-
-                // swirl draws its own line to me
                 droppedOn.ReattachNode(this);
-
-                // record partner swirl separately
                 terminalSwirl = droppedOn;
-                Debug.Log($"[Node] terminalSwirl set to {terminalSwirl.swirlID}");
 
-                // redraw this node’s line back to its parent
                 Vector3 from = (parentNode != null)
                     ? parentNode.transform.position
                     : transform.position;
@@ -173,37 +206,39 @@ public class NodeBehavior : ConnectableBehavior
 
     public override void BreakConnection()
     {
-        // 1) break any downstream chain first
+        // 1) break downstream first
         if (childNode != null)
         {
             childNode.BreakConnection();
             childNode = null;
         }
 
-        // 2) ALWAYS sever the terminal-swirl link before anything else
+        // 2) sever terminal-swirl if present
         if (terminalSwirl != null)
         {
-            Debug.Log($"[Node] Breaking terminalSwirl link to {terminalSwirl.swirlID}");
             terminalSwirl.BreakNodeConnection();
             terminalSwirl.UnregisterNodeDrivenConnection();
             terminalSwirl = null;
         }
 
-        // 3) sever link to parent node, if any
+        // 3) sever parent-node if any (always run)
         if (parentNode != null)
         {
             parentNode.BreakChildConnection();
             parentNode = null;
         }
-        // 4) otherwise sever the original-swirl link
+        // 4) sever original-swirl if any
         else if (parentSwirl != null)
         {
             parentSwirl.BreakNodeConnection();
             parentSwirl = null;
         }
 
-        // 5) finally reset visuals
+        // 5) reset visuals
         ResetLine();
+
+        // 6) forget old history so this node can re-drag
+        _originalSwirl = null;
     }
 
 
@@ -244,24 +279,20 @@ public class NodeBehavior : ConnectableBehavior
     /// <summary>Walks up to the very first swirl, even if broken.</summary>
     private SwirlBehavior GetRootSwirl()
     {
-        if (_originalSwirl != null)
-            return _originalSwirl;
-        if (parentSwirl != null)
-            return parentSwirl;
-        if (parentNode != null)
-            return parentNode.GetRootSwirl();
+        if (_originalSwirl != null) return _originalSwirl;
+        if (parentSwirl    != null) return parentSwirl;
+        if (parentNode     != null) return parentNode.GetRootSwirl();
         return null;
     }
 
-    /// <summary>Called by a child when it breaks away:</summary>
+    /// <summary>Called by a child when it breaks away.</summary>
     public void BreakChildConnection()
     {
         childNode = null;
-        lineRenderer.enabled       = false;
-        lineRenderer.positionCount = 0;
-        ResetVisuals();
+        ResetLine();
     }
 
+    /// <summary>Disable the line and visuals.</summary>
     private void ResetLine()
     {
         lineRenderer.enabled       = false;
