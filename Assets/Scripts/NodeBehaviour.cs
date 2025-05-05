@@ -1,145 +1,278 @@
+// NodeBehavior.cs
 using UnityEngine;
 
-[RequireComponent(typeof(LineRenderer))]
-public class NodeBehavior : MonoBehaviour
+[RequireComponent(typeof(LineRenderer), typeof(Collider2D), typeof(SpriteRenderer))]
+public class NodeBehavior : ConnectableBehavior
 {
-    private SwirlBehavior connectedSwirl;
-    private LineRenderer dragLine;
-    private bool isDraggingLine = false;
+    private const float DoubleTapThreshold = 0.3f;
+    private float lastTapTime = -1f;
 
-    private float lastTapTime = 0f;
-    private const float doubleTapThreshold = 0.3f;
+    // the very first swirl this chain was ever attached to
+    private SwirlBehavior _originalSwirl;
 
-    public bool IsConnected => connectedSwirl != null;
+    // the swirl I’m currently hooked to (only on the first node)
+    private SwirlBehavior parentSwirl;
 
-    private void Start()
+    // the node immediately above me in the chain
+    private NodeBehavior parentNode;
+
+    // the node immediately below me in the chain
+    private NodeBehavior childNode;
+
+    // the _other_ swirl I attach to when a terminal node hooks partner
+    private SwirlBehavior terminalSwirl;
+
+    protected override void Update()
     {
-        dragLine = GetComponent<LineRenderer>();
-        if (dragLine != null)
+        base.Update();
+
+        // 1) if my original‐swirl link was broken by a door, clear it
+        if (parentSwirl != null &&
+            parentSwirl.GetConnectedNode() != this)
         {
-            dragLine.enabled = false;
-            dragLine.positionCount = 2;
+            Debug.Log($"[Node] parentSwirl {parentSwirl.swirlID} lost, clearing");
+            parentSwirl = null;
+            ResetLine();
+        }
+
+        // 2) if my terminal‐swirl link was broken, clear it
+        if (terminalSwirl != null &&
+            terminalSwirl.GetConnectedNode() != this)
+        {
+            Debug.Log($"[Node] terminalSwirl {terminalSwirl.swirlID} lost, clearing");
+            terminalSwirl = null;
+            ResetLine();
+        }
+
+        // 3) if my parent node was broken, drop back
+        if (parentNode != null && !parentNode.IsConnected())
+        {
+            Debug.Log($"[Node] parentNode {parentNode.name} lost, clearing");
+            parentNode = null;
+            ResetLine();
         }
     }
 
-    private void Update()
+    protected override void OnMouseDown()
     {
-        if (isDraggingLine && dragLine != null)
+        // PREVENT any drag if already hooked to a terminal swirl
+        if (terminalSwirl != null)
         {
-            Vector3 mouseWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            mouseWorld.z = 0f;
+            Debug.Log($"[Node] already connected to terminal swirl {terminalSwirl.swirlID}, cancelling new drag");
+            return;
+        }
 
-            Vector2 start = transform.position;
-            Vector2 end = mouseWorld;
+        float now = Time.time;
 
-            // 🔍 Check for doors intersecting the drag path
-            RaycastHit2D hit = Physics2D.Linecast(start, end);
-            if (hit.collider != null && hit.collider.CompareTag("Door"))
+        // double‐tap to sever this segment
+        if ((parentSwirl != null || parentNode != null || terminalSwirl != null) &&
+            now - lastTapTime <= DoubleTapThreshold)
+        {
+            BreakConnection();
+            lastTapTime = -1f;
+            return;
+        }
+        lastTapTime = now;
+
+        // decide if I may start a drag
+        bool wasRootDisconnected =
+            _originalSwirl != null &&
+            parentSwirl  == null &&
+            parentNode   == null;
+
+        bool isOriginalSwirlNodeAttached =
+            parentSwirl == _originalSwirl;
+
+        bool isChildChainNode = parentNode != null;
+
+        // allow drag only if:
+        // – I’m still on the original swirl (first node)
+        // – OR I’m any child in a chain
+        // – OR I’m that same first node after a door broke me
+        if (!isOriginalSwirlNodeAttached && !isChildChainNode && !wasRootDisconnected)
+            return;
+
+        // drop any downstream child so no “stale” links remain
+        if (childNode != null)
+        {
+            childNode.BreakConnection();
+            childNode = null;
+        }
+
+        // begin drag/preview
+        base.OnMouseDown();
+    }
+
+    protected override bool TryConnectToTarget(Collider2D hit)
+    {
+        bool wasRootDisconnected =
+            _originalSwirl != null &&
+            parentSwirl  == null &&
+            parentNode   == null;
+
+        bool isOriginalSwirlNodeAttached =
+            parentSwirl == _originalSwirl;
+
+        bool isChildChainNode = parentNode != null;
+
+        // ─── 1) node→node chaining ───
+        if ((isOriginalSwirlNodeAttached || isChildChainNode || wasRootDisconnected)
+             && hit.CompareTag("Node"))
+        {
+            var target = hit.GetComponent<NodeBehavior>();
+            if (target != null && !target.IsConnected())
             {
-                Debug.Log("🚪 Node drag line hit a door — cancelling visual drag.");
-                CancelNodeDrag(); // only cancels the visual line
-                return;
+                childNode = target;
+                target.SetParentNode(this);
+
+                // draw this → target
+                lineRenderer.enabled       = true;
+                lineRenderer.positionCount = 2;
+                lineRenderer.SetPosition(0, transform.position);
+                lineRenderer.SetPosition(1, target.transform.position);
+                return true;
             }
-
-            dragLine.SetPosition(0, transform.position);
-            dragLine.SetPosition(1, mouseWorld);
         }
-    }
 
-    private void CancelNodeDrag()
-    {
-        isDraggingLine = false;
-        if (dragLine != null)
+        // ─── 2) terminal‐node→partner‐swirl ───
+        if (childNode == null && hit.CompareTag("Swirl"))
         {
-            dragLine.enabled = false;
+            var droppedOn = hit.GetComponent<SwirlBehavior>();
+            var rootSwirl = GetRootSwirl();
+            if (droppedOn != null && rootSwirl != null &&
+                rootSwirl.CanConnectTo(droppedOn))
+            {
+                // count for puzzle
+                rootSwirl.RegisterNodeDrivenConnection(droppedOn);
+
+                // swirl draws its own line to me
+                droppedOn.ReattachNode(this);
+
+                // record partner swirl separately
+                terminalSwirl = droppedOn;
+                Debug.Log($"[Node] terminalSwirl set to {terminalSwirl.swirlID}");
+
+                // redraw this node’s line back to its parent
+                Vector3 from = (parentNode != null)
+                    ? parentNode.transform.position
+                    : transform.position;
+
+                lineRenderer.enabled       = true;
+                lineRenderer.positionCount = 2;
+                lineRenderer.SetPosition(0, from);
+                lineRenderer.SetPosition(1, transform.position);
+                return true;
+            }
         }
+
+        return false;
     }
 
+    public override bool IsConnected() =>
+        parentSwirl != null || parentNode != null || terminalSwirl != null;
+
+    public override void BreakConnection()
+    {
+        // 1) break any downstream chain first
+        if (childNode != null)
+        {
+            childNode.BreakConnection();
+            childNode = null;
+        }
+
+        // 2) ALWAYS sever the terminal-swirl link before anything else
+        if (terminalSwirl != null)
+        {
+            Debug.Log($"[Node] Breaking terminalSwirl link to {terminalSwirl.swirlID}");
+            terminalSwirl.BreakNodeConnection();
+            terminalSwirl.UnregisterNodeDrivenConnection();
+            terminalSwirl = null;
+        }
+
+        // 3) sever link to parent node, if any
+        if (parentNode != null)
+        {
+            parentNode.BreakChildConnection();
+            parentNode = null;
+        }
+        // 4) otherwise sever the original-swirl link
+        else if (parentSwirl != null)
+        {
+            parentSwirl.BreakNodeConnection();
+            parentSwirl = null;
+        }
+
+        // 5) finally reset visuals
+        ResetLine();
+    }
+
+
+    /// <summary>Called by SwirlBehavior on initial attach.</summary>
     public void ConnectToSwirl(SwirlBehavior swirl)
     {
-        if (connectedSwirl == null)
-        {
-            connectedSwirl = swirl;
-            swirl.RegisterNode(this);
-            Debug.Log($"Node connected to Swirl {swirl.swirlID}");
-        }
+        if (_originalSwirl == null)
+            _originalSwirl = swirl;
+
+        parentSwirl   = swirl;
+        parentNode    = null;
+        childNode     = null;
+        terminalSwirl = null;
+
+        Debug.Log($"[Node] parentSwirl set to {swirl.swirlID}");
+
+        lineRenderer.enabled       = true;
+        lineRenderer.positionCount = 2;
+        lineRenderer.SetPosition(0, transform.position);
+        lineRenderer.SetPosition(1, transform.position);
     }
 
-    public void Disconnect()
+    private void SetParentNode(NodeBehavior parent)
     {
-        if (connectedSwirl != null)
-        {
-            connectedSwirl.UnregisterNode(this);
-            connectedSwirl.BreakConnectionFromNode();
-            connectedSwirl = null;
-        }
+        parentNode    = parent;
+        parentSwirl   = null;
+        terminalSwirl = null;
+        childNode     = null;
 
-        CancelNodeDrag();
+        Debug.Log($"[Node] parentNode set to {parent.name}");
+
+        lineRenderer.enabled       = true;
+        lineRenderer.positionCount = 2;
+        lineRenderer.SetPosition(0, parent.transform.position);
+        lineRenderer.SetPosition(1, transform.position);
     }
 
-    public void CheckParentStillConnected()
+    /// <summary>Walks up to the very first swirl, even if broken.</summary>
+    private SwirlBehavior GetRootSwirl()
     {
-        if (connectedSwirl != null && !connectedSwirl.IsConnected())
-        {
-            Disconnect();
-        }
+        if (_originalSwirl != null)
+            return _originalSwirl;
+        if (parentSwirl != null)
+            return parentSwirl;
+        if (parentNode != null)
+            return parentNode.GetRootSwirl();
+        return null;
     }
 
-    private void OnMouseDown()
+    /// <summary>Called by a child when it breaks away:</summary>
+    public void BreakChildConnection()
     {
-        if (!IsConnected) return;
-
-        float currentTime = Time.time;
-        if (currentTime - lastTapTime < doubleTapThreshold)
-        {
-            // Double-tap: disconnect and start drag from swirl
-            Vector3 startPosition = transform.position;
-            SwirlBehavior swirl = connectedSwirl;
-            Disconnect();
-            swirl.StartDragFromNode(startPosition);
-        }
-        else
-        {
-            lastTapTime = currentTime;
-
-            if (dragLine != null)
-            {
-                isDraggingLine = true;
-                dragLine.enabled = true;
-                dragLine.SetPosition(0, transform.position);
-                dragLine.SetPosition(1, transform.position);
-            }
-        }
+        childNode = null;
+        lineRenderer.enabled       = false;
+        lineRenderer.positionCount = 0;
+        ResetVisuals();
     }
 
-    private void OnMouseUp()
+    private void ResetLine()
     {
-        if (!isDraggingLine || dragLine == null) return;
-
-        Vector3 mouseWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        Vector2 mousePos = new Vector2(mouseWorld.x, mouseWorld.y);
-
-        Collider2D[] hits = Physics2D.OverlapCircleAll(mousePos, 0.5f);
-
-        bool connected = false;
-
-        foreach (Collider2D hit in hits)
-        {
-            if (hit == null || hit.gameObject == this.gameObject) continue;
-
-            connectedSwirl.TryConnectToObjectFromNode(hit.gameObject, this);
-            connected = true;
-            break;
-        }
-
-        // ✅ Always stop dragging on mouse up
-        isDraggingLine = false;
-
-        // ✅ Disable the line no matter what, unless it got re-enabled by a connection
-        if (!connected && dragLine != null)
-        {
-            dragLine.enabled = false;
-        }
+        lineRenderer.enabled       = false;
+        lineRenderer.positionCount = 0;
+        ResetVisuals();
     }
 
+    // optional getters for DoorController logic:
+    public NodeBehavior   GetParentNode()  => parentNode;
+    public SwirlBehavior  GetParentSwirl() => parentSwirl;
+
+    // alias so SwirlBehavior can call node.Disconnect()
+    public void Disconnect() => BreakConnection();
 }

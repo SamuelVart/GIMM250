@@ -1,471 +1,242 @@
+// SwirlBehavior.cs
 using UnityEngine;
-using UnityEngine.SceneManagement;
-using System.Collections.Generic;
-public class SwirlBehavior : MonoBehaviour
+using Random = UnityEngine.Random;
+
+[RequireComponent(typeof(LineRenderer), typeof(Collider2D), typeof(SpriteRenderer))]
+public class SwirlBehavior : ConnectableBehavior
 {
-    private SpriteRenderer spriteRenderer;
-    private LineRenderer lineRenderer;
-    private Collider2D selfCollider;
-
-    private Vector3 originalScale;
-    private Color originalColor;
-    private bool isDragging = false;
-    private bool isConnected = false;
-    private bool wasCancelled = false;
-
-    private SwirlBehavior connectedSwirl = null;
-
+    [Header("Swirl Settings")]
     public int swirlID;
     public Color hoverColor = Color.cyan;
     public float hoverScaleMultiplier = 1.2f;
-
     public float minSpeed = 90f;
     public float maxSpeed = 360f;
-    private float rotationSpeed;
-    private float direction;
-    
-    private List<NodeBehavior> attachedNodes = new List<NodeBehavior>();
 
-    private static readonly (int, int)[] validConnections = new (int, int)[]
-    {
-        (0, 1),
-        (2, 3)
-    };
-
+    private static readonly (int, int)[] validConnections = { (0, 1), (2, 3) };
     public static int connectionCounter = 0;
-    private bool connectionCounted = false;
 
-    void OnGUI()
+    private float rotationSpeed;
+
+    // swirl↔swirl state
+    private SwirlBehavior connectedSwirl;
+    private bool          isConnected;
+
+    // swirl→node state
+    private NodeBehavior  connectedNode;
+    private bool          isConnectedToNode;
+    private bool          connectionCounted;
+
+    protected override void Awake()
     {
-        GUIStyle bigStyle = new GUIStyle(GUI.skin.label);
-        bigStyle.fontSize = 24; // Increase the number for bigger text
-        GUI.Label(new Rect(20, 20, 300, 40), "Connections: " + connectionCounter, bigStyle);
+        base.Awake();
+        rotationSpeed = Random.Range(minSpeed, maxSpeed)
+                      * (Random.value < 0.5f ? 1 : -1);
     }
 
-    
-    private void Start()
+    protected override void Update()
     {
-        spriteRenderer = GetComponent<SpriteRenderer>();
-        lineRenderer = GetComponent<LineRenderer>();
-        selfCollider = GetComponent<Collider2D>();
+        base.Update();
 
-        originalScale = transform.localScale;
-        originalColor = spriteRenderer.color;
+        // continuous rotation
+        transform.Rotate(0, 0, rotationSpeed * Time.deltaTime);
 
-        if (lineRenderer != null)
-        {
-            lineRenderer.enabled = false;
-        }
-
-        direction = Random.value < 0.5f ? 1f : -1f;
-        float speed = Random.Range(minSpeed, maxSpeed);
-        rotationSpeed = direction * speed;
-    }
-
-    private void Update()
-    {
-        transform.Rotate(0f, 0f, direction * rotationSpeed * Time.deltaTime);
-
-        // Monitor active connection
+        // watch for doors cutting swirl↔swirl
         if (isConnected && connectedSwirl != null)
         {
-            RaycastHit2D hit = Physics2D.Linecast(transform.position, connectedSwirl.transform.position);
+            var hit = Physics2D.Linecast(
+                transform.position,
+                connectedSwirl.transform.position
+            );
             if (hit.collider != null && hit.collider.CompareTag("Door"))
             {
-                Debug.Log("Connected line hit by door — breaking connection.");
+                Debug.Log($"[Door] Breaking swirl↔swirl between {swirlID} and {connectedSwirl.swirlID}");
                 BreakConnection();
                 connectedSwirl.BreakConnection();
             }
         }
-
-        // Drag logic
-        if (isDragging && !isConnected)
-        {
-            Vector3 mousePos3D = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            Vector2 mousePos = new Vector2(mousePos3D.x, mousePos3D.y);
-
-            if (lineRenderer != null)
-            {
-                lineRenderer.SetPosition(0, transform.position);
-                lineRenderer.SetPosition(1, mousePos);
-            }
-
-            if (selfCollider != null)
-                selfCollider.enabled = false;
-
-            Vector2 origin = transform.position;
-            Vector2 directionVector = (mousePos - origin).normalized;
-            float distance = Vector2.Distance(origin, mousePos);
-
-            RaycastHit2D hit = Physics2D.CircleCast(origin, 0.1f, directionVector, distance);
-
-            if (selfCollider != null)
-                selfCollider.enabled = true;
-
-            if (hit.collider != null && hit.collider.CompareTag("Door"))
-            {
-                Debug.Log("Line hit door — cancelling.");
-                CancelDrag();
-            }
-        }
     }
 
-    private void OnMouseEnter()
+    protected override bool TryConnectToTarget(Collider2D hit)
     {
-        if (!isConnected)
+        // 1) swirl→node
+        if (hit.CompareTag("Node"))
         {
-            transform.localScale = originalScale * hoverScaleMultiplier;
-            spriteRenderer.color = hoverColor;
-        }
-    }
-
-    private void OnMouseExit()
-    {
-        if (!isDragging)
-        {
-            transform.localScale = originalScale;
-            spriteRenderer.color = originalColor;
-        }
-    }
-
-    private void OnMouseDown()
-    {
-        if (isConnected) return;
-
-        isDragging = true;
-        wasCancelled = false;
-
-        if (lineRenderer != null)
-        {
-            lineRenderer.enabled = true;
-            lineRenderer.positionCount = 2;
-            lineRenderer.SetPosition(0, transform.position);
-            lineRenderer.SetPosition(1, transform.position);
-        }
-    }
-
-    private void OnMouseUp()
-    {
-        if (isConnected || wasCancelled)
-        {
-            wasCancelled = false;
-            return;
-        }
-
-        isDragging = false;
-
-        Vector3 mousePos3D = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        Vector2 mousePos = new Vector2(mousePos3D.x, mousePos3D.y);
-
-        Collider2D[] hits = Physics2D.OverlapCircleAll(mousePos, 0.5f);
-        bool connected = false;
-
-        foreach (Collider2D hit in hits)
-        {
-            if (hit.gameObject != this.gameObject && hit.CompareTag("Swirl"))
+            var node = hit.GetComponent<NodeBehavior>();
+            if (node != null && !node.IsConnected())
             {
-                SwirlBehavior otherSwirl = hit.GetComponent<SwirlBehavior>();
+                connectedNode     = node;
+                isConnectedToNode = true;
+                node.ConnectToSwirl(this);
 
-                if (otherSwirl != null && IsValidConnection(this.swirlID, otherSwirl.swirlID) && !otherSwirl.isConnected)
-                {
-                    // Connect
-                    if (lineRenderer != null)
-                    {
-                        lineRenderer.SetPosition(1, otherSwirl.transform.position);
-                        lineRenderer.enabled = true;
-                    }
-
-                    connected = true;
-                    this.isConnected = true;
-                    this.connectedSwirl = otherSwirl;
-
-                    otherSwirl.isConnected = true;
-                    otherSwirl.connectedSwirl = this;
-
-                    connectionCounter++;
-                    connectionCounted = true;
-                    otherSwirl.connectionCounted = false;
-
-
-                    if (connectionCounter >= validConnections.Length)
-                    {
-                        PuzzleComplete();
-                    }
-
-                    break;
-                }
-            } else if (hit.CompareTag("Node"))
-            {
-                NodeBehavior node = hit.GetComponent<NodeBehavior>();
-                if (node != null && !node.IsConnected)
-                {
-                    node.ConnectToSwirl(this);
-
-                    // optional visual line update
-                    if (lineRenderer != null)
-                    {
-                        lineRenderer.SetPosition(1, node.transform.position);
-                        lineRenderer.enabled = true;
-                    }
-
-                    isDragging = false;
-                    transform.localScale = originalScale;
-                    spriteRenderer.color = originalColor;
-                    return; // early exit to prevent fallback
-                }
-            }
-
-        }
-
-        if (!connected)
-        {
-            if (lineRenderer != null)
-            {
-                lineRenderer.enabled = false;
-                lineRenderer.positionCount = 0;
-            }
-        }
-
-        transform.localScale = originalScale;
-        spriteRenderer.color = originalColor;
-    }
-
-    private bool IsValidConnection(int id1, int id2)
-    {
-        foreach (var pair in validConnections)
-        {
-            if ((pair.Item1 == id1 && pair.Item2 == id2) || (pair.Item1 == id2 && pair.Item2 == id1))
-            {
+                lineRenderer.SetPosition(1, node.transform.position);
                 return true;
             }
         }
+        // 2) swirl↔swirl
+        else if (hit.CompareTag("Swirl"))
+        {
+            var other = hit.GetComponent<SwirlBehavior>();
+            if (other != null &&
+                !other.isConnected &&
+                IsValidConnection(other))
+            {
+                connectedSwirl       = other;
+                isConnected          = true;
+                other.connectedSwirl = this;
+                other.isConnected    = true;
+
+                connectionCounter++;
+                connectionCounted = true;
+                Debug.Log($"[Puzzle] Incremented connectionCounter to {connectionCounter} via swirl↔swirl {swirlID}-{other.swirlID}");
+
+                lineRenderer.SetPosition(1, other.transform.position);
+                if (connectionCounter >= validConnections.Length)
+                    PuzzleComplete();
+                return true;
+            }
+        }
+
         return false;
     }
 
-    private void CancelDrag()
+    public override bool IsConnected() => isConnected || isConnectedToNode;
+
+    public override void BreakConnection()
     {
-        Debug.Log("Line blocked by closed door — cancelling drag.");
-
-        isDragging = false;
-        wasCancelled = true;
-
-        if (lineRenderer != null)
-        {
-            lineRenderer.positionCount = 0;
-            lineRenderer.enabled = false;
-        }
-
-        transform.localScale = originalScale;
-        spriteRenderer.color = originalColor;
-    }
-
-    public void BreakConnection()
-    {
+        // break swirl↔swirl
         if (isConnected)
         {
             if (connectionCounted)
             {
                 connectionCounter--;
-                Debug.Log($"❌ Connection broken by {swirlID}. Remaining connections: {connectionCounter}");
                 connectionCounted = false;
+                Debug.Log($"[Puzzle] Decremented connectionCounter to {connectionCounter} breaking swirl↔swirl");
             }
-
             isConnected = false;
+
+            // mirror-break
+            connectedSwirl.isConnected = false;
+            connectedSwirl.connectedSwirl = null;
             connectedSwirl = null;
-
-            if (lineRenderer != null)
-            {
-                lineRenderer.enabled = false;
-                lineRenderer.positionCount = 0;
-            }
         }
-        
-        foreach (var node in attachedNodes)
+        // break swirl→node
+        else if (isConnectedToNode)
         {
-            node.CheckParentStillConnected();
+            connectedNode.Disconnect();
+            connectedNode = null;
+            isConnectedToNode = false;
         }
+
+        // clear line
+        lineRenderer.enabled = false;
+        lineRenderer.positionCount = 0;
+        ResetVisuals();
     }
 
-    public void BreakConnectionFromNode()
+    private bool IsValidConnection(SwirlBehavior other)
     {
-        if (lineRenderer != null)
-        {
-            lineRenderer.positionCount = 2; // ✅ make sure it's at least 2
-            lineRenderer.SetPosition(0, Vector3.zero);
-            lineRenderer.SetPosition(1, Vector3.zero);
-            lineRenderer.enabled = false;   // hide it after clearing
-        }
-
-        isDragging = false;
-        isConnected = false;
-        connectedSwirl = null;
-
-        Debug.Log($"🔌 Swirl {swirlID} connection to node broken.");
+        foreach (var p in validConnections)
+            if ((p.Item1 == swirlID && p.Item2 == other.swirlID) ||
+                (p.Item2 == swirlID && p.Item1 == other.swirlID))
+                return true;
+        return false;
     }
 
+    /// <summary>
+    /// Expose the same validity test you already use internally.
+    /// </summary>
+    public bool CanConnectTo(SwirlBehavior other)
+    {
+        return IsValidConnection(other);
+    }
 
-
-
+    
     private void PuzzleComplete()
     {
         Debug.Log("✨ Puzzle Completed! ✨");
-
-        FadeController fadeController = FindObjectOfType<FadeController>();
-
-        if (fadeController != null)
-        {
-            fadeController.StartFadeAndLoadScene("House");
-        }
-        else
-        {
-            Debug.LogError("No FadeController found in scene!");
-        }
+        var fade = FindObjectOfType<FadeController>();
+        fade?.StartFadeAndLoadScene("House");
     }
-    public void RegisterNode(NodeBehavior node)
+
+    /// <summary>Used by NodeBehavior when *this* node wants to attach to me.</summary>
+    public void ReattachNode(NodeBehavior node)
     {
-        if (!attachedNodes.Contains(node))
-            attachedNodes.Add(node);
+        // if I already had a node, clear it
+        if (isConnectedToNode)
+            connectedNode.Disconnect();
+
+        connectedNode     = node;
+        isConnectedToNode = true;
+
+        // fully draw my own line to *this* node:
+        lineRenderer.enabled       = true;
+        lineRenderer.positionCount = 2;
+        lineRenderer.SetPosition(0, transform.position);
+        lineRenderer.SetPosition(1, node.transform.position);
     }
 
-    public void UnregisterNode(NodeBehavior node)
-    {
-        attachedNodes.Remove(node);
+    /// <summary>Expose so a Node can verify it’s still held.</summary>
+    public NodeBehavior GetConnectedNode() => connectedNode;
 
-        if (!IsConnected()) // If no other connections exist, fully reset visuals
-        {
-            if (lineRenderer != null)
-            {
-                lineRenderer.enabled = false;
-                lineRenderer.positionCount = 0;
-            }
+    // ─────────── MISSING METHODS ADDED ───────────
 
-            transform.localScale = originalScale;
-            spriteRenderer.color = originalColor;
-        }
-    }
+    /// <summary>Expose the other swirl when in a swirl↔swirl connection.</summary>
+    public SwirlBehavior GetConnectedSwirl() => connectedSwirl;
 
+    /// <summary>True if this swirl is connected to the given swirl.</summary>
+    public bool IsConnectedTo(SwirlBehavior other) =>
+        isConnected && connectedSwirl == other;
     
-    
-    public void StartDragFromNode(Vector3 position)
+    /// <summary>
+    /// Severs only the swirl→node link (no cascade back to the node).
+    /// </summary>
+    public void BreakNodeConnection()
     {
-        // Allow drag even if connected — so long as we're the origin swirl
-        if (connectedSwirl != null && connectedSwirl != this)
-            return;
-
-
-        isDragging = true;
-        wasCancelled = false;
-
-        if (lineRenderer != null)
+        if (isConnectedToNode)
         {
-            lineRenderer.enabled = true;
-            lineRenderer.positionCount = 2;
-            lineRenderer.SetPosition(0, position); // drag starts from node
-            lineRenderer.SetPosition(1, position);
+            isConnectedToNode = false;
+            connectedNode     = null;
+
+            // clear our line
+            lineRenderer.enabled       = false;
+            lineRenderer.positionCount = 0;
+            ResetVisuals();
         }
     }
     
-    public void TryConnectToObject(GameObject target)
+    /// <summary>
+    /// Increment the puzzle counter for a valid rootSwirl→droppedOn pair,
+    /// and fire PuzzleComplete() if it hits the required total.
+    /// Does not change any line renderers or connection state.
+    /// </summary>
+    public void RegisterNodeDrivenConnection(SwirlBehavior droppedOn)
     {
-        if (isConnected) return;
-
-        if (target.CompareTag("Swirl"))
+        if (IsValidConnection(droppedOn))
         {
-            SwirlBehavior other = target.GetComponent<SwirlBehavior>();
-            if (other != null && IsValidConnection(this.swirlID, other.swirlID) && !other.isConnected)
-            {
-                if (lineRenderer != null)
-                {
-                    lineRenderer.positionCount = 2;
-                    lineRenderer.SetPosition(0, transform.position);
-                    lineRenderer.SetPosition(1, other.transform.position);
-                    lineRenderer.enabled = true;
-                }
-
-                this.isConnected = true;
-                this.connectedSwirl = other;
-
-                other.isConnected = true;
-                other.connectedSwirl = this;
-
-                connectionCounter++;
-                connectionCounted = true;
-                other.connectionCounted = false;
-
-                Debug.Log($"✅ Node initiated connection from Swirl {swirlID} to Swirl {other.swirlID}");
-
-                if (connectionCounter >= validConnections.Length)
-                {
-                    PuzzleComplete();
-                }
-            }
-        }
-        else if (target.CompareTag("Node"))
-        {
-            NodeBehavior node = target.GetComponent<NodeBehavior>();
-            if (node != null && !node.IsConnected)
-            {
-                node.ConnectToSwirl(this);
-
-                if (lineRenderer != null)
-                {
-                    lineRenderer.positionCount = 2;
-                    lineRenderer.SetPosition(0, transform.position);
-                    lineRenderer.SetPosition(1, node.transform.position);
-                    lineRenderer.enabled = true;
-                }
-
-                Debug.Log($"✅ Node initiated connection from Swirl {swirlID} to Node.");
-            }
+            connectionCounter++;
+            Debug.Log($"[Puzzle] Incremented connectionCounter to {connectionCounter} via node-driven connection");
+            if (connectionCounter >= validConnections.Length)
+                PuzzleComplete();
         }
     }
 
-    public void TryConnectToObjectFromNode(GameObject target, NodeBehavior proxyNode)
-    {
-        if (isConnected) return;
-
-        if (target.CompareTag("Swirl"))
+    /// <summary>
+    /// Call this when a node-driven (terminal) link breaks.
+    /// </summary>
+    public void UnregisterNodeDrivenConnection()
+    { 
+        if (connectionCounter > 0)
         {
-            SwirlBehavior other = target.GetComponent<SwirlBehavior>();
-            if (other != null && IsValidConnection(this.swirlID, other.swirlID) && !other.isConnected)
-            {
-                // 🧠 Preserve the swirl’s line only to the node (do not update it!)
-                // Let the node handle the visual chain extension
-
-                this.isConnected = true;
-                this.connectedSwirl = other;
-
-                other.isConnected = true;
-                other.connectedSwirl = this;
-
-                connectionCounter++;
-                connectionCounted = true;
-                other.connectionCounted = false;
-
-                Debug.Log($"✅ Swirl {swirlID} (via node) connected to Swirl {other.swirlID}");
-
-                if (connectionCounter >= validConnections.Length)
-                {
-                    PuzzleComplete();
-                }
-            }
+            connectionCounter--;
+            Debug.Log($"[Puzzle] Decremented connectionCounter to {connectionCounter} via node-driven disconnect");
         }
     }
-
     
-
-    public bool IsConnected()
+    /*
+    private void OnGUI()
     {
-        return isConnected;
+        GUIStyle style = new GUIStyle(GUI.skin.label) { fontSize = 24 };
+        GUI.Label(new Rect(20, 20, 300, 40), $"Connections: {connectionCounter}", style);
     }
-
-    public bool IsConnectedTo(SwirlBehavior other)
-    {
-        return isConnected && connectedSwirl == other;
-    }
-
-    public SwirlBehavior GetConnectedSwirl()
-    {
-        return connectedSwirl;
-    }
+    */
 }

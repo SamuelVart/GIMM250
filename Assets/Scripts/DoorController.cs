@@ -1,27 +1,28 @@
-using UnityEngine;
+// DoorController.cs
 using System.Collections;
+using UnityEngine;
 
+[RequireComponent(typeof(Collider2D), typeof(SpriteRenderer))]
 public class DoorController : MonoBehaviour
 {
-    private Collider2D doorCollider;
+    private Collider2D   doorCollider;
     private SpriteRenderer spriteRenderer;
 
     [Header("Transparency Settings")]
-    [Range(0f, 1f)] public float openAlpha = 0.3f;
-    public float closedAlpha = 1f;
+    [Range(0f, 1f)] public float openAlpha   = 0.3f;
+                      public float closedAlpha = 1f;
 
     [Header("Scale Animation Settings")]
     public float punchScaleAmount = 0.1f;
-    public float punchDuration = 0.1f;
+    public float punchDuration    = 0.1f;
 
     private Vector3 originalScale;
 
     private void Start()
     {
-        doorCollider = GetComponent<Collider2D>();
+        doorCollider   = GetComponent<Collider2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
-        originalScale = transform.localScale;
-
+        originalScale  = transform.localScale;
         SetAlpha(closedAlpha);
     }
 
@@ -29,7 +30,6 @@ public class DoorController : MonoBehaviour
     {
         if (doorCollider != null)
             doorCollider.enabled = false;
-
         SetAlpha(openAlpha);
         StartCoroutine(PunchScale(-punchScaleAmount));
     }
@@ -38,7 +38,6 @@ public class DoorController : MonoBehaviour
     {
         if (doorCollider != null)
             doorCollider.enabled = true;
-
         SetAlpha(closedAlpha);
         StartCoroutine(PunchScale(punchScaleAmount));
         StartCoroutine(DelayedBreakCheck());
@@ -54,17 +53,17 @@ public class DoorController : MonoBehaviour
     {
         if (spriteRenderer != null)
         {
-            Color color = spriteRenderer.color;
-            color.a = alpha;
-            spriteRenderer.color = color;
+            Color c = spriteRenderer.color;
+            c.a = alpha;
+            spriteRenderer.color = c;
         }
     }
 
     private IEnumerator PunchScale(float scaleChange)
     {
         Vector3 targetScale = originalScale + Vector3.one * scaleChange;
-
         float elapsed = 0f;
+
         while (elapsed < punchDuration)
         {
             elapsed += Time.deltaTime;
@@ -85,52 +84,61 @@ public class DoorController : MonoBehaviour
 
     private void BreakIntersectingConnections()
     {
-        SwirlBehavior[] allSwirls = FindObjectsOfType<SwirlBehavior>();
-        NodeBehavior[] allNodes = FindObjectsOfType<NodeBehavior>();
-        RaycastHit2D[] hits = new RaycastHit2D[5];
+        RaycastHit2D[] hits = new RaycastHit2D[10];
 
-        // ✅ Break direct swirl-to-swirl connections
-        foreach (SwirlBehavior swirl in allSwirls)
+        // 1) swirl <-> swirl
+        foreach (var swirl in FindObjectsOfType<SwirlBehavior>())
         {
-            SwirlBehavior connected = swirl.GetConnectedSwirl();
-            if (connected != null && swirl.IsConnectedTo(connected))
+            var partner = swirl.GetConnectedSwirl();
+            if (partner != null && swirl.IsConnectedTo(partner))
             {
-                Vector2 start = swirl.transform.position;
-                Vector2 end = connected.transform.position;
-
-                int hitCount = Physics2D.LinecastNonAlloc(start, end, hits);
-                for (int i = 0; i < hitCount; i++)
+                Vector2 a = swirl.transform.position;
+                Vector2 b = partner.transform.position;
+                int count = Physics2D.LinecastNonAlloc(a, b, hits);
+                for (int i = 0; i < count; i++)
                 {
                     if (hits[i].collider == doorCollider)
                     {
-                        Debug.Log($"[Door] Breaking swirl <-> swirl connection between {swirl.swirlID} and {connected.swirlID}");
                         swirl.BreakConnection();
-                        connected.BreakConnection();
+                        partner.BreakConnection();
+                        break;
+                    }
+                }
+            }
+
+            // 2) swirl -> node
+            var node = swirl.GetConnectedNode();
+            if (node != null)
+            {
+                Vector2 a = swirl.transform.position;
+                Vector2 b = node.transform.position;
+                int count = Physics2D.LinecastNonAlloc(a, b, hits);
+                for (int i = 0; i < count; i++)
+                {
+                    if (hits[i].collider == doorCollider)
+                    {
+                        swirl.BreakConnection();
                         break;
                     }
                 }
             }
         }
 
-        // ✅ Break swirl-to-node or node-to-swirl connections
-        foreach (SwirlBehavior swirl in allSwirls)
+        // 3) node -> node
+        foreach (var child in FindObjectsOfType<NodeBehavior>())
         {
-            foreach (var node in allNodes)
+            var parent = child.GetParentNode();
+            if (parent != null)
             {
-                if (node != null && node.IsConnected)
+                Vector2 a = parent.transform.position;
+                Vector2 b = child.transform.position;
+                int count = Physics2D.LinecastNonAlloc(a, b, hits);
+                for (int i = 0; i < count; i++)
                 {
-                    Vector2 start = swirl.transform.position;
-                    Vector2 end = node.transform.position;
-
-                    int hitCount = Physics2D.LinecastNonAlloc(start, end, hits);
-                    for (int i = 0; i < hitCount; i++)
+                    if (hits[i].collider == doorCollider)
                     {
-                        if (hits[i].collider == doorCollider)
-                        {
-                            Debug.Log($"[Door] Breaking swirl <-> node connection from Swirl {swirl.swirlID}");
-                            node.Disconnect();
-                            break;
-                        }
+                        child.BreakConnection();
+                        break;
                     }
                 }
             }
