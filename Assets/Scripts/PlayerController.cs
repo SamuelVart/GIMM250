@@ -7,17 +7,27 @@ public class PlayerController : MonoBehaviour
     public float jumpForce = 8f;
 
     [Header("Ground Check")]
-    public Transform groundCheck; // Empty GameObject at feet
+    public Transform groundCheck;
     public LayerMask groundLayer;
     public float groundCheckRadius = 0.1f;
 
     [Header("Interaction")]
     public float interactionRadius = 1.5f;
 
+    [Header("Pickup Settings")]
+    public float pickupRadius = 1.5f;
+    public Transform holdPoint;
+
+    [Header("Delivery Settings")]
+    [Tooltip("How close you must be to deliver")]
+    public float deliverRadius = 1.5f;
+    public LayerMask heartLayer;
+
     private Rigidbody2D rb;
     private Animator animator;
     private SpriteRenderer spriteRenderer;
 
+    private OrbController carriedOrb;
     private Vector2 direction;
     private bool isGrounded;
 
@@ -30,33 +40,30 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        // Movement input
+        // ——— Movement & Jumping ———
         direction = new Vector2(Input.GetAxisRaw("Horizontal"), 0f);
-
-        // Ground check
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
 
-        // Jumping
         if (Input.GetButtonDown("Jump") && isGrounded)
-        {
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
-        }
 
-        // Flip sprite
         if (direction.x != 0)
-        {
             spriteRenderer.flipX = direction.x < 0;
-        }
 
-        // Animator update
-        if (animator != null)
-        {
-            animator.SetBool("isWalking", direction.x != 0);
-        }
+        animator?.SetBool("isWalking", direction.x != 0);
 
-        // Lever interaction
+        // ——— E key: Deliver → Pickup → Lever ———
         if (Input.GetKeyDown(KeyCode.E))
         {
+            // 1) If carrying an orb, try to deliver it
+            if (carriedOrb != null && TryDeliverOrb())
+                return;
+
+            // 2) If not carrying, try to pick one up
+            if (carriedOrb == null && TryPickupOrb())
+                return;
+
+            // 3) Otherwise, fallback to lever activation
             TryActivateLever();
         }
     }
@@ -66,12 +73,51 @@ public class PlayerController : MonoBehaviour
         rb.linearVelocity = new Vector2(direction.x * speed, rb.linearVelocity.y);
     }
 
-    private void TryActivateLever()
+    private bool TryPickupOrb()
     {
-        Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, interactionRadius);
+        var hits = Physics2D.OverlapCircleAll(transform.position, pickupRadius);
         foreach (var hit in hits)
         {
-            LeverController lever = hit.GetComponent<LeverController>();
+            var orb = hit.GetComponent<OrbController>();
+            if (orb != null && !orb.IsCollected)
+            {
+                orb.PickUp(holdPoint);
+                carriedOrb = orb;
+                animator?.SetBool("isCarrying", true);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private bool TryDeliverOrb()
+    {
+        // look for the HeartController within deliverRadius
+        var hits = Physics2D.OverlapCircleAll(transform.position, deliverRadius, heartLayer);
+        foreach (var hit in hits)
+        {
+            var heart = hit.GetComponent<HeartController>();
+            if (heart != null)
+            {
+                // resolve the orb (you can extend HeartController to check order/types)
+                heart.ResolveOrb(carriedOrb);
+
+                // destroy the orb and clear state
+                Destroy(carriedOrb.gameObject);
+                carriedOrb = null;
+                animator?.SetBool("isCarrying", false);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void TryActivateLever()
+    {
+        var hits = Physics2D.OverlapCircleAll(transform.position, interactionRadius);
+        foreach (var hit in hits)
+        {
+            var lever = hit.GetComponent<LeverController>();
             if (lever != null)
             {
                 lever.ActivateLever();
@@ -82,15 +128,19 @@ public class PlayerController : MonoBehaviour
 
     private void OnDrawGizmosSelected()
     {
-        // Visualize ground check
         if (groundCheck != null)
         {
             Gizmos.color = Color.yellow;
             Gizmos.DrawWireSphere(groundCheck.position, groundCheckRadius);
         }
 
-        // Visualize lever interaction
         Gizmos.color = Color.cyan;
         Gizmos.DrawWireSphere(transform.position, interactionRadius);
+
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireSphere(transform.position, pickupRadius);
+
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, deliverRadius);
     }
 }

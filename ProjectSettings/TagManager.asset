@@ -8,6 +8,7 @@ TagManager:
   - Door
   - Lever
   - Node
+  - Orb
   layers:
   - Default
   - TransparentFX

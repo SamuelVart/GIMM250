@@ -11,24 +11,30 @@ public class SwirlBehavior : ConnectableBehavior
     public float hoverScaleMultiplier = 1.2f;
     public float minSpeed             = 90f;
     public float maxSpeed            = 360f;
-
-    private static readonly (int, int)[] validConnections = { (0,1), (2,3) };
+    
+    [SerializeField]
+    private static readonly (int, int)[] validConnections = { (0,1), (2,3), (4,5), (6,7) }; // Add the partner swirls here 
     public static int connectionCounter = 0;
 
     [Header("Connection Direction")]
+    [SerializeField]
     [Tooltip("If false, role is auto-computed by tuple order")]
-    [SerializeField] private bool useManualDirection               = false;
-    [Tooltip("May this swirl initiate any drag (swirl→swirl or swirl→node)?")]
-    [SerializeField] private bool canInitiateSwirlConnection       = false;
+    private bool useManualDirection         = false;
+    [SerializeField]
+    [Tooltip("May this swirl initiate drags (swirl→swirl/node)?")]
+    private bool canInitiateSwirlConnection = false;
 
-    // internal state
-    private float        rotationSpeed;
+    //── internal state ───────────────────────────────────────────────────────────
+    private float         rotationSpeed;
     private SwirlBehavior connectedSwirl;
     private bool          isConnected;
     private NodeBehavior  connectedNode;
     private bool          isConnectedToNode;
     private bool          connectionCounted;
-    private bool          isTerminal = false;
+    private bool          isTerminal = false;   // true if this swirl is the terminal of a node chain
+
+
+    //───────────────────────────────────────────────────────────────────────────────
 
     protected override void Awake()
     {
@@ -42,7 +48,7 @@ public class SwirlBehavior : ConnectableBehavior
 
     private bool DetermineInitiationRole()
     {
-        // lower-ID listed first in validConnections → parent
+        // lower-ID listed first → parent that may initiate
         foreach (var p in validConnections)
             if (p.Item1 == swirlID)
                 return true;
@@ -54,7 +60,7 @@ public class SwirlBehavior : ConnectableBehavior
         base.Update();
         transform.Rotate(0,0, rotationSpeed * Time.deltaTime);
 
-        // break swirl↔swirl on door intersect
+        // door-cut swirl↔swirl
         if (isConnected && connectedSwirl != null)
         {
             var hit = Physics2D.Linecast(
@@ -69,35 +75,87 @@ public class SwirlBehavior : ConnectableBehavior
         }
     }
 
-    // ← override so non-parents can’t even start dragging
+    // ← NEW: allow terminal swirl to break its node chain on a single tap
+    // SwirlBehavior.cs (inside class)
+
     protected override void OnMouseDown()
     {
+        // 1) TERMINAL‐SWIRL TAP: sever just the swirl→node link
+        if (isTerminal)
+        {
+            // grab the node I'm holding
+            var node = connectedNode;
+            if (node != null)
+                node.BreakTerminalLink();
+
+            // clear my end
+            BreakNodeConnection();
+            UnregisterNodeDrivenConnection();
+            return;
+        }
+
+        // 2) DRAG‐BREAK (parent swirl): click+drag on a swirl→node should also
+        //    sever just that link, then start the drag in one go
+        if (isConnectedToNode)
+        {
+            var node = connectedNode;
+            if (node != null)
+                node.BreakTerminalLink();
+
+            BreakNodeConnection();
+            UnregisterNodeDrivenConnection();
+
+            base.OnMouseDown();  // immediately go into drag mode
+            return;
+        }
+
+        // 3) SWIRL↔SWIRL TAP: any tap breaks that link on a single click
+        if (connectedSwirl != null)
+        {
+            var other = connectedSwirl;
+            if (canInitiateSwirlConnection)
+            {
+                BreakConnection();      // this decrements for me
+                other.BreakConnection();
+                base.OnMouseDown();     // then start a fresh drag
+            }
+            else
+            {
+                other.BreakConnection();
+                BreakConnection();
+            }
+            return;
+        }
+
+        // 4) Otherwise, only designated parents may start brand‐new drags:
         if (!canInitiateSwirlConnection)
             return;
 
         base.OnMouseDown();
     }
 
+
+
     protected override bool TryConnectToTarget(Collider2D hit)
     {
-        // everything here only runs if we started a drag,
-        // which we now only allow on canInitiateSwirlConnection==true
-
-        // 1) swirl→node  
+        // ── swirl→node ─────────────────────────────────────────────────────────
         if (hit.CompareTag("Node"))
         {
-            if (isTerminal) return false;
+            if (isTerminal)
+                return false;
+
             var node = hit.GetComponent<NodeBehavior>();
             if (node != null && !node.IsConnected())
             {
                 connectedNode     = node;
                 isConnectedToNode = true;
                 node.ConnectToSwirl(this);
+
                 lineRenderer.SetPosition(1, node.transform.position);
                 return true;
             }
         }
-        // 2) directed swirl↔swirl  
+        // ── directed swirl↔swirl ────────────────────────────────────────────────
         else if (hit.CompareTag("Swirl"))
         {
             var other = hit.GetComponent<SwirlBehavior>();
@@ -111,6 +169,7 @@ public class SwirlBehavior : ConnectableBehavior
 
                 connectionCounter++;
                 connectionCounted = true;
+
                 lineRenderer.SetPosition(1, other.transform.position);
                 if (connectionCounter >= validConnections.Length)
                     PuzzleComplete();
@@ -133,20 +192,24 @@ public class SwirlBehavior : ConnectableBehavior
 
     public override void BreakConnection()
     {
+        // swirl↔swirl branch
         if (isConnected)
         {
-            if (connectionCounted) connectionCounter--;
+            if (connectionCounted)
+                connectionCounter--;
+
             isConnected = false;
-            connectedSwirl.isConnected       = false;
-            connectedSwirl.connectedSwirl    = null;
-            connectedSwirl                   = null;
+            connectedSwirl.isConnected    = false;
+            connectedSwirl.connectedSwirl = null;
+            connectedSwirl                = null;
         }
+        // swirl→node branch
         else if (isConnectedToNode)
         {
             isTerminal = false;
-            connectedNode.Disconnect();
-            connectedNode           = null;
-            isConnectedToNode       = false;
+            connectedNode.BreakTerminalLink();
+            connectedNode         = null;
+            isConnectedToNode     = false;
         }
 
         lineRenderer.enabled       = false;
@@ -160,8 +223,8 @@ public class SwirlBehavior : ConnectableBehavior
     private void PuzzleComplete()
     {
         Debug.Log("✨ Puzzle Completed! ✨");
-        FindObjectOfType<FadeController>()
-            ?.StartFadeAndLoadScene("House");
+        FindObjectOfType<FadeController>()?
+            .StartFadeAndLoadScene("House");
     }
 
     public void ReattachNode(NodeBehavior node)
@@ -172,6 +235,7 @@ public class SwirlBehavior : ConnectableBehavior
 
         connectedNode     = node;
         isConnectedToNode = true;
+
         lineRenderer.enabled       = true;
         lineRenderer.positionCount = 2;
         lineRenderer.SetPosition(0, transform.position);
@@ -189,9 +253,10 @@ public class SwirlBehavior : ConnectableBehavior
         ResetVisuals();
     }
 
-    public NodeBehavior  GetConnectedNode()  => connectedNode;
-    public SwirlBehavior GetConnectedSwirl() => connectedSwirl;
-    public bool          IsConnectedTo(SwirlBehavior other)
+    public NodeBehavior   GetConnectedNode()  => connectedNode;
+    public SwirlBehavior  GetConnectedSwirl() => connectedSwirl;
+
+    public bool IsConnectedTo(SwirlBehavior other)
         => isConnected && connectedSwirl == other;
 
     public void RegisterNodeDrivenConnection(SwirlBehavior droppedOn)
@@ -206,6 +271,14 @@ public class SwirlBehavior : ConnectableBehavior
 
     public void UnregisterNodeDrivenConnection()
     {
-        if (connectionCounter > 0) connectionCounter--;
+        if (connectionCounter > 0)
+            connectionCounter--;
+    }
+    
+    private void OnGUI()
+    {
+        GUIStyle style = new GUIStyle(GUI.skin.label) { fontSize = 24 };
+        GUI.Label(new Rect(20, 20, 300, 40), $"Connections: {connectionCounter}", style);
     }
 }
+
