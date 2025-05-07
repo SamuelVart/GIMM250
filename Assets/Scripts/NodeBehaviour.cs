@@ -9,24 +9,18 @@ public class NodeBehavior : ConnectableBehavior
 
     // the very first swirl this chain was ever attached to
     private SwirlBehavior _originalSwirl;
+
     // the swirl I’m currently hooked to (only on the first node)
     private SwirlBehavior parentSwirl;
+
     // the node immediately above me in the chain
     private NodeBehavior parentNode;
+
     // the node immediately below me in the chain
     private NodeBehavior childNode;
+
     // the _other_ swirl I attach to when a terminal node hooks partner
     private SwirlBehavior terminalSwirl;
-
-    // store my default colour so I can reset when fully disconnected
-    private Color _defaultColor;
-
-    protected override void Awake()
-    {
-        base.Awake();
-        // capture the node’s original colour at startup
-        _defaultColor = spriteRenderer.color;
-    }
 
     protected override void Update()
     {
@@ -36,7 +30,10 @@ public class NodeBehavior : ConnectableBehavior
         // a) break node↔node
         if (parentNode != null)
         {
-            var hit = Physics2D.Linecast(transform.position, parentNode.transform.position);
+            var hit = Physics2D.Linecast(
+                transform.position,
+                parentNode.transform.position
+            );
             if (hit.collider != null && hit.collider.CompareTag("Door"))
             {
                 Debug.Log($"[Door] breaking node↔node on {name} ↔ {parentNode.name}");
@@ -48,7 +45,10 @@ public class NodeBehavior : ConnectableBehavior
         // b) break node↔parentSwirl
         if (parentSwirl != null)
         {
-            var hit = Physics2D.Linecast(transform.position, parentSwirl.transform.position);
+            var hit = Physics2D.Linecast(
+                transform.position,
+                parentSwirl.transform.position
+            );
             if (hit.collider != null && hit.collider.CompareTag("Door"))
             {
                 Debug.Log($"[Door] breaking node↔swirl on {name} ↔ swirl {parentSwirl.swirlID}");
@@ -64,7 +64,10 @@ public class NodeBehavior : ConnectableBehavior
                 ? parentNode.transform.position
                 : transform.position;
 
-            var hit = Physics2D.Linecast(from, terminalSwirl.transform.position);
+            var hit = Physics2D.Linecast(
+                from,
+                terminalSwirl.transform.position
+            );
             if (hit.collider != null && hit.collider.CompareTag("Door"))
             {
                 Debug.Log($"[Door] breaking node→swirl terminal on {name} → swirl {terminalSwirl.swirlID}");
@@ -154,23 +157,19 @@ public class NodeBehavior : ConnectableBehavior
         if ((isOriginalSwirlNodeAttached || isChildChainNode || wasRootDisconnected)
              && hit.CompareTag("Node"))
         {
+            if (!lineRenderer.enabled)
+                return false;
+
             var target = hit.GetComponent<NodeBehavior>();
             if (target != null && !target.IsConnected())
             {
-                // establish parent‐child link
                 childNode = target;
                 target.SetParentNode(this);
 
-                // draw the connecting line
                 lineRenderer.enabled       = true;
                 lineRenderer.positionCount = 2;
                 lineRenderer.SetPosition(0, transform.position);
                 lineRenderer.SetPosition(1, target.transform.position);
-
-                // line should match this node’s colour
-                var c = spriteRenderer.color;
-                lineRenderer.startColor = c;
-                lineRenderer.endColor   = c;
                 return true;
             }
         }
@@ -183,12 +182,10 @@ public class NodeBehavior : ConnectableBehavior
             if (droppedOn != null && rootSwirl != null &&
                 rootSwirl.CanConnectTo(droppedOn))
             {
-                // register on the swirl
                 rootSwirl.RegisterNodeDrivenConnection(droppedOn);
                 droppedOn.ReattachNode(this);
                 terminalSwirl = droppedOn;
 
-                // draw from parentNode or self
                 Vector3 from = (parentNode != null)
                     ? parentNode.transform.position
                     : transform.position;
@@ -197,12 +194,6 @@ public class NodeBehavior : ConnectableBehavior
                 lineRenderer.positionCount = 2;
                 lineRenderer.SetPosition(0, from);
                 lineRenderer.SetPosition(1, transform.position);
-
-                // inherit both sprite + line colour from swirl
-                var c = droppedOn.GetComponent<SpriteRenderer>().color;
-                spriteRenderer.color     = c;
-                lineRenderer.startColor  = c;
-                lineRenderer.endColor    = c;
                 return true;
             }
         }
@@ -244,12 +235,14 @@ public class NodeBehavior : ConnectableBehavior
             parentSwirl = null;
         }
 
-        // 5) reset visuals (line + colour)
+        // 5) reset visuals
         ResetLine();
 
         // 6) forget old history so this node can be re-dragged
         _originalSwirl = null;
     }
+
+
 
     /// <summary>Called by SwirlBehavior on initial attach.</summary>
     public void ConnectToSwirl(SwirlBehavior swirl)
@@ -264,20 +257,12 @@ public class NodeBehavior : ConnectableBehavior
 
         Debug.Log($"[Node] parentSwirl set to {swirl.swirlID}");
 
-        // show initial zero-length line
         lineRenderer.enabled       = true;
         lineRenderer.positionCount = 2;
         lineRenderer.SetPosition(0, transform.position);
         lineRenderer.SetPosition(1, transform.position);
-
-        // inherit both sprite + line colour from swirl
-        var c = swirl.GetComponent<SpriteRenderer>().color;
-        spriteRenderer.color     = c;
-        lineRenderer.startColor  = c;
-        lineRenderer.endColor    = c;
     }
 
-    /// <summary>Called by a parent node when chaining.</summary>
     private void SetParentNode(NodeBehavior parent)
     {
         parentNode    = parent;
@@ -291,12 +276,6 @@ public class NodeBehavior : ConnectableBehavior
         lineRenderer.positionCount = 2;
         lineRenderer.SetPosition(0, parent.transform.position);
         lineRenderer.SetPosition(1, transform.position);
-
-        // inherit colour from parent node (which itself matches the swirl)
-        var c = parent.GetComponent<SpriteRenderer>().color;
-        spriteRenderer.color     = c;
-        lineRenderer.startColor  = c;
-        lineRenderer.endColor    = c;
     }
 
     /// <summary>Walks up to the very first swirl, even if broken.</summary>
@@ -308,48 +287,52 @@ public class NodeBehavior : ConnectableBehavior
         return null;
     }
 
-    /// <summary>Called by a child when it breaks away—hide this line only.</summary>
+    /// <summary>Called by a child when it breaks away.</summary>
     public void BreakChildConnection()
     {
         childNode = null;
-        lineRenderer.enabled       = false;
-        lineRenderer.positionCount = 0;
-        // keep spriteRenderer.color as-is
+        ResetLine();
     }
 
-    /// <summary>Disable the line and visuals (including resetting colour).</summary>
+    /// <summary>Disable the line and visuals.</summary>
     private void ResetLine()
     {
         lineRenderer.enabled       = false;
         lineRenderer.positionCount = 0;
-        ResetVisuals();  // restores the node’s original sprite colour
+        ResetVisuals();
     }
 
     // optional getters for DoorController logic:
-    public NodeBehavior  GetParentNode()  => parentNode;
-    public SwirlBehavior GetParentSwirl() => parentSwirl;
+    public NodeBehavior   GetParentNode()  => parentNode;
+    public SwirlBehavior  GetParentSwirl() => parentSwirl;
 
     // alias so SwirlBehavior can call node.Disconnect()
     public void Disconnect() => BreakConnection();
-
+    
     /// <summary>
-    /// Sever only this node’s link to a swirl (terminal or parent),
+    /// Sever only this node’s link to a swirl (whether terminalSwirl or parentSwirl),
     /// but leave any parentNode→childNode chain intact.
     /// </summary>
     public void BreakTerminalLink()
     {
+        // 1) if I was hooked as a terminal onto another swirl, drop that
         if (terminalSwirl != null)
         {
             terminalSwirl.BreakNodeConnection();
             terminalSwirl.UnregisterNodeDrivenConnection();
             terminalSwirl = null;
         }
+        // 2) otherwise if I was the *first* node on an original swirl, drop that
         else if (parentSwirl != null)
         {
             parentSwirl.BreakNodeConnection();
             parentSwirl = null;
         }
 
-        ResetLine();
+        // 3) reset just *my* line visuals
+        lineRenderer.enabled       = false;
+        lineRenderer.positionCount = 0;
+        ResetVisuals();
+
     }
 }

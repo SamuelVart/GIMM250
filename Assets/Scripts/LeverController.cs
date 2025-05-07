@@ -11,13 +11,22 @@ public class LeverController : MonoBehaviour
     public float bounceScale = 0.8f;
     public float bounceDuration = 0.1f;
 
+    [Header("Lever Tilt Settings")]
+    [Tooltip("Degrees to tilt on activation")]
+    public float tiltAngle = 15f;
+    [Tooltip("Time to tilt out and back (each half)")]
+    public float tiltDuration = 0.1f;
+
     private bool isToggled = false;
     private bool isAnimating = false;
     private Vector3 originalScale;
+    private Quaternion originalRotation;
+    private bool tiltLeft = true;
 
     private void Start()
     {
         originalScale = transform.localScale;
+        originalRotation = transform.localRotation;
     }
 
     public void ActivateLever()
@@ -30,6 +39,7 @@ public class LeverController : MonoBehaviour
             return;
         }
 
+        // Toggle doors
         if (!isToggled)
         {
             doorA.OpenDoor();
@@ -41,7 +51,10 @@ public class LeverController : MonoBehaviour
             doorB.OpenDoor();
         }
 
+        // Run both bounce and tilt
         StartCoroutine(BounceLever());
+        StartCoroutine(TiltLever());
+
         isToggled = !isToggled;
     }
 
@@ -52,6 +65,7 @@ public class LeverController : MonoBehaviour
         float elapsed = 0f;
         Vector3 squashed = new Vector3(originalScale.x, originalScale.y * bounceScale, originalScale.z);
 
+        // squash down
         while (elapsed < bounceDuration)
         {
             elapsed += Time.deltaTime;
@@ -59,6 +73,7 @@ public class LeverController : MonoBehaviour
             yield return null;
         }
 
+        // stretch back
         elapsed = 0f;
         while (elapsed < bounceDuration)
         {
@@ -68,6 +83,38 @@ public class LeverController : MonoBehaviour
         }
 
         transform.localScale = originalScale;
+        isAnimating = false;
+    }
+
+    private IEnumerator TiltLever()
+    {
+        // mark animating so we don't retrigger mid-tilt
+        isAnimating = true;
+
+        float half = tiltDuration;
+        float elapsed = 0f;
+        float angle = tiltLeft ? tiltAngle : -tiltAngle;
+        Quaternion targetRot = originalRotation * Quaternion.Euler(0f, 0f, angle);
+
+        // tilt outward
+        while (elapsed < half)
+        {
+            elapsed += Time.deltaTime;
+            transform.localRotation = Quaternion.Slerp(originalRotation, targetRot, elapsed / half);
+            yield return null;
+        }
+
+        // tilt back
+        elapsed = 0f;
+        while (elapsed < half)
+        {
+            elapsed += Time.deltaTime;
+            transform.localRotation = Quaternion.Slerp(targetRot, originalRotation, elapsed / half);
+            yield return null;
+        }
+
+        transform.localRotation = originalRotation;
+        tiltLeft = !tiltLeft;
         isAnimating = false;
     }
 }

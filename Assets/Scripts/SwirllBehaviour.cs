@@ -90,24 +90,19 @@ public class SwirlBehavior : ConnectableBehavior
 
             // clear my end
             BreakNodeConnection();
-            UnregisterNodeDrivenConnection();
             return;
         }
 
         // 2) DRAG‐BREAK (parent swirl): click+drag on a swirl→node should also
         //    sever just that link, then start the drag in one go
+        // NEW: drag‐break severs the whole chain, then starts a fresh drag
         if (isConnectedToNode)
         {
-            var node = connectedNode;
-            if (node != null)
-                node.BreakTerminalLink();
-
-            BreakNodeConnection();
-            UnregisterNodeDrivenConnection();
-
-            base.OnMouseDown();  // immediately go into drag mode
+            BreakConnection();     // uses our patched override to drop the full node‐chain
+            base.OnMouseDown();    // immediately go into drag mode
             return;
         }
+
 
         // 3) SWIRL↔SWIRL TAP: any tap breaks that link on a single click
         if (connectedSwirl != null)
@@ -192,7 +187,7 @@ public class SwirlBehavior : ConnectableBehavior
 
     public override void BreakConnection()
     {
-        // swirl↔swirl branch
+        // ── swirl↔swirl branch ─────────────────────────────────────────────
         if (isConnected)
         {
             if (connectionCounted)
@@ -203,19 +198,25 @@ public class SwirlBehavior : ConnectableBehavior
             connectedSwirl.connectedSwirl = null;
             connectedSwirl                = null;
         }
-        // swirl→node branch
+        // ── swirl→node branch ─────────────────────────────────────────────
         else if (isConnectedToNode)
         {
-            isTerminal = false;
-            connectedNode.BreakTerminalLink();
-            connectedNode         = null;
-            isConnectedToNode     = false;
+            // break the *whole* node chain (child nodes + terminal swirl)
+            if (connectedNode != null)
+                connectedNode.BreakConnection();
+
+            // undo our end
+            isTerminal        = false;
+            connectedNode     = null;
+            isConnectedToNode = false;
         }
 
+        // common teardown
         lineRenderer.enabled       = false;
         lineRenderer.positionCount = 0;
         ResetVisuals();
     }
+
 
     public bool CanConnectTo(SwirlBehavior other)
         => IsValidDirectedConnection(other);
@@ -281,4 +282,3 @@ public class SwirlBehavior : ConnectableBehavior
         GUI.Label(new Rect(20, 20, 300, 40), $"Connections: {connectionCounter}", style);
     }
 }
-
