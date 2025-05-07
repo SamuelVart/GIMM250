@@ -1,11 +1,15 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour
 {
+    [Header("SFX")]
+    public AudioClip interactSFX;
+    
     [Header("Movement Settings")]
-    public float speed            = 5f;
-    public float jumpForce        = 8f;
+    public float speed = 5f;
+    public float jumpForce = 8f;
 
     [Header("Ground Check")]
     public Transform groundCheck;
@@ -16,19 +20,26 @@ public class PlayerController : MonoBehaviour
     public float interactionRadius = 1.5f;
 
     [Header("Pickup Settings")]
-    public float pickupRadius      = 1.5f;
+    public float pickupRadius = 1.5f;
     public Transform holdPoint;
 
     [Header("Delivery Settings")]
-    [Tooltip("How close you must be to deliver")]
-    public float deliverRadius     = 1.5f;
+    public float deliverRadius = 1.5f;
     public LayerMask heartLayer;
     
     [Header("Prompt UI")]
-    public GameObject pressEPrompt;  // the Text (or TMP) 
+    public GameObject pressEPrompt;   
     
-    public Transform observerField; // drag the ObserverField child here in Inspector
-    
+    public Transform observerField; 
+
+    [Header("Idle Sprites (Scene-Based)")]
+    public Sprite[] idleSprites = new Sprite[3]; // 0: Stomach, 1: Brain, 2: Heart
+
+    [Header("Walk Animations")]
+    public RuntimeAnimatorController walkStomach;
+    public RuntimeAnimatorController walkBrain;
+    public RuntimeAnimatorController walkHeart;
+
     private Rigidbody2D rb;
     private Animator animator;
     private SpriteRenderer spriteRenderer;
@@ -42,11 +53,33 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
+
+        SetSceneAppearance();
+    }
+
+    private void SetSceneAppearance()
+    {
+        string scene = SceneManager.GetActiveScene().name;
+
+        if (scene == "Game1" || scene == "House_Stomach")
+        {
+            spriteRenderer.sprite = idleSprites[0];
+            animator.runtimeAnimatorController = walkStomach;
+        }
+        else if (scene == "Game2" || scene == "House_Brain")
+        {
+            spriteRenderer.sprite = idleSprites[1];
+            animator.runtimeAnimatorController = walkBrain;
+        }
+        else if (scene == "Game3" || scene == "House_Heart")
+        {
+            spriteRenderer.sprite = idleSprites[2];
+            animator.runtimeAnimatorController = walkHeart;
+        }
     }
 
     private void Update()
     {
-        // ——— Movement & Jumping ———
         direction = new Vector2(Input.GetAxisRaw("Horizontal"), 0f);
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
 
@@ -58,32 +91,25 @@ public class PlayerController : MonoBehaviour
 
         animator?.SetBool("isWalking", direction.x != 0);
 
-        // ——— E key: Deliver → Pickup → Lever ———
         if (Input.GetKeyDown(KeyCode.E))
         {
-            // 1) If carrying an orb, try to deliver it
             if (carriedOrb != null && TryDeliverOrb())
                 return;
 
-            // 2) If not carrying, try to pick one up
             if (carriedOrb == null && TryPickupOrb())
                 return;
 
-            // 3) Otherwise, fallback to lever activation
             TryActivateLever();
         }
-        
-        UpdateInteractionPrompt();
-        
-        if (direction.x != 0)
-         {
-            spriteRenderer.flipX = direction.x < 0;
 
+        UpdateInteractionPrompt();
+
+        if (direction.x != 0)
+        {
             Vector3 localPos = observerField.localPosition;
             localPos.x = Mathf.Abs(localPos.x) * (spriteRenderer.flipX ? -1 : 1);
             observerField.localPosition = localPos;
-         }
-
+        }
     }
 
     private void FixedUpdate()
@@ -101,6 +127,10 @@ public class PlayerController : MonoBehaviour
             {
                 orb.PickUp(holdPoint);
                 carriedOrb = orb;
+
+                if (interactSFX != null)
+                    AudioSource.PlayClipAtPoint(interactSFX, transform.position);
+
                 return true;
             }
         }
@@ -109,7 +139,6 @@ public class PlayerController : MonoBehaviour
 
     private bool TryDeliverOrb()
     {
-        // look for the HeartController within deliverRadius
         var hits = Physics2D.OverlapCircleAll(transform.position, deliverRadius, heartLayer);
         foreach (var hit in hits)
         {
@@ -119,22 +148,25 @@ public class PlayerController : MonoBehaviour
                 bool correct = heart.ResolveOrb(carriedOrb);
                 if (correct)
                     Destroy(carriedOrb.gameObject);
-                else 
+                else
                     carriedOrb.Reject();
                 carriedOrb = null;
+
+                if (interactSFX != null)
+                    AudioSource.PlayClipAtPoint(interactSFX, transform.position);
+
                 return true;
             }
         }
         return false;
     }
-    
+
     private void UpdateInteractionPrompt()
     {
         bool nearPickup = false;
         bool nearDeliver = false;
         bool nearLever = false;
 
-        // 1) Are we near an orb we can pick up?
         if (carriedOrb == null)
         {
             Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, pickupRadius);
@@ -148,7 +180,6 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        // 2) Are we near the heart and carrying an orb?
         if (carriedOrb != null)
         {
             Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, deliverRadius, heartLayer);
@@ -161,8 +192,7 @@ public class PlayerController : MonoBehaviour
                 }
             }
         }
-        
-        // 3) Are we near the lever
+
         Collider2D[] hit = Physics2D.OverlapCircleAll(transform.position, interactionRadius);
         foreach (var h in hit)
         {
@@ -171,28 +201,10 @@ public class PlayerController : MonoBehaviour
                 nearLever = true;
                 break;
             }
-                
-        }   
+        }
 
-        // 4) Show the prompt if either is true
-        if (nearPickup)
-        {
-            pressEPrompt.SetActive(true);
-        }
-        else if (nearDeliver)
-        {
-            pressEPrompt.SetActive(true);
-        }
-        else if (nearLever)
-        {
-            pressEPrompt.SetActive(true);
-        }
-        else
-        {
-            pressEPrompt.SetActive(false);
-        }
+        pressEPrompt.SetActive(nearPickup || nearDeliver || nearLever);
     }
-
 
     private void TryActivateLever()
     {
@@ -203,22 +215,21 @@ public class PlayerController : MonoBehaviour
             if (lever != null)
             {
                 lever.ActivateLever();
+                if (interactSFX != null)
+                    AudioSource.PlayClipAtPoint(interactSFX, transform.position);
                 return;
             }
         }
     }
-    
-    void OnCollisionEnter2D(Collision2D collision)
+
+    private void OnCollisionEnter2D(Collision2D collision)
     {
-        // Are we landing on top of a moving platform?
         if (collision.collider.CompareTag("MovingPlatform"))
         {
             foreach (var contact in collision.contacts)
             {
-                // check that the contact normal is roughly pointing up
                 if (contact.normal.y > 0.5f)
                 {
-                    // parent the player to the platform
                     transform.SetParent(collision.collider.transform);
                     break;
                 }
@@ -226,9 +237,8 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    void OnCollisionExit2D(Collision2D collision)
+    private void OnCollisionExit2D(Collision2D collision)
     {
-        // if we step off the moving platform, unparent
         if (collision.collider.CompareTag("MovingPlatform"))
         {
             transform.SetParent(null);

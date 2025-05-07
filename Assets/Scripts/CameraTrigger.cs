@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class CameraTrigger : MonoBehaviour
 {
-    public Transform targetCameraPosition; // where to move the camera when triggered
+    public Transform targetCameraPosition; 
 
     private void OnTriggerEnter2D(Collider2D other)
     {

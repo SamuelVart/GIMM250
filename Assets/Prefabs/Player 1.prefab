@@ -371,6 +371,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dabc570d1a8764d0ca631c697f0379b8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  interactSFX: {fileID: 8300000, guid: 0f03999a4264b4f8f84fea77f7acefac, type: 3}
   speed: 5
   jumpForce: 9
   groundCheck: {fileID: 8949057442948892841}
@@ -386,6 +387,14 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 256
   pressEPrompt: {fileID: 4973485334049097767}
+  observerField: {fileID: 0}
+  idleSprites:
+  - {fileID: 9036149898113176392, guid: dc12ee0a8539248f99182c815679428f, type: 3}
+  - {fileID: -2005125743227611291, guid: a98c4b33d3bd34e51988ab193043a092, type: 3}
+  - {fileID: -2005125743227611291, guid: 0aefa0dec367a4578ad46895a5059032, type: 3}
+  walkStomach: {fileID: 9100000, guid: 439e1b83011bd4d40b4601f7ade7b465, type: 2}
+  walkBrain: {fileID: 9100000, guid: e2b04e24da2bc4209a34640108046ddb, type: 2}
+  walkHeart: {fileID: 9100000, guid: c9113b9a0633c4e9489a3c728a2b0050, type: 2}
 --- !u!95 &1823444024205568784
 Animator:
   serializedVersion: 7

@@ -39,7 +39,7 @@ public class LeverController : MonoBehaviour
             return;
         }
 
-        // Toggle doors
+        
         if (!isToggled)
         {
             doorA.OpenDoor();
@@ -51,7 +51,7 @@ public class LeverController : MonoBehaviour
             doorB.OpenDoor();
         }
 
-        // Run both bounce and tilt
+        
         StartCoroutine(BounceLever());
         StartCoroutine(TiltLever());
 
@@ -65,7 +65,7 @@ public class LeverController : MonoBehaviour
         float elapsed = 0f;
         Vector3 squashed = new Vector3(originalScale.x, originalScale.y * bounceScale, originalScale.z);
 
-        // squash down
+        
         while (elapsed < bounceDuration)
         {
             elapsed += Time.deltaTime;
@@ -73,7 +73,7 @@ public class LeverController : MonoBehaviour
             yield return null;
         }
 
-        // stretch back
+        
         elapsed = 0f;
         while (elapsed < bounceDuration)
         {
@@ -88,7 +88,7 @@ public class LeverController : MonoBehaviour
 
     private IEnumerator TiltLever()
     {
-        // mark animating so we don't retrigger mid-tilt
+        
         isAnimating = true;
 
         float half = tiltDuration;
@@ -96,7 +96,7 @@ public class LeverController : MonoBehaviour
         float angle = tiltLeft ? tiltAngle : -tiltAngle;
         Quaternion targetRot = originalRotation * Quaternion.Euler(0f, 0f, angle);
 
-        // tilt outward
+        
         while (elapsed < half)
         {
             elapsed += Time.deltaTime;
@@ -104,7 +104,7 @@ public class LeverController : MonoBehaviour
             yield return null;
         }
 
-        // tilt back
+        
         elapsed = 0f;
         while (elapsed < half)
         {

@@ -5,6 +5,10 @@ using UnityEngine.UI;
 
 public class HeartController : MonoBehaviour
 {
+    [Header("Fade Controller")]
+    public FadeController fadeController;
+    public string sceneToLoad;
+    
     [Header("Delivery Order")]
     public List<OrbType> deliverySequence = new List<OrbType>();
 
@@ -13,13 +17,13 @@ public class HeartController : MonoBehaviour
     public Sprite blueOrbSprite, orangeOrbSprite, mixedOrbSprite;
 
     [Header("Beat Animation Settings")]
-    public bool enableBeat = true;
-    public float beatScale = 1.1f;
-    public float beatDuration = 0.5f;
-    public float beatInterval = 0.5f;
+    public bool enableBeat       = true;
+    public float beatScale       = 1.1f;
+    public float beatDuration    = 0.5f;
+    public float beatInterval    = 0.5f;
 
     [Header("Deliver Pulse Settings")]
-    public float deliverScale = 1.2f;
+    public float deliverScale    = 1.2f;
     public float deliverDuration = 0.2f;
 
     [Header("Completion UI")]
@@ -51,11 +55,11 @@ public class HeartController : MonoBehaviour
 
     void Start()
     {
-        // UI & completion panel
+        
         UpdateNextOrbUI();
         if (completionPanel != null) completionPanel.SetActive(false);
 
-        // kick off beating
+        
         if (enableBeat)
             StartCoroutine(HeartbeatLoop());
     }
@@ -67,9 +71,9 @@ public class HeartController : MonoBehaviour
         {
             currentIndex++;
             UpdateNextOrbUI();
-            // pulse visuals
+            
             StartCoroutine(DeliverPulse());
-            // audio
+            
             if (deliverSource != null && deliverClip != null)
                 deliverSource.PlayOneShot(deliverClip, deliverVolume);
 
@@ -103,6 +107,8 @@ public class HeartController : MonoBehaviour
     {
         if (completionPanel != null)
             completionPanel.SetActive(true);
+        if (fadeController != null)
+            fadeController.StartFadeAndLoadScene(sceneToLoad);
     }
 
     IEnumerator HeartbeatLoop()
@@ -110,7 +116,7 @@ public class HeartController : MonoBehaviour
         float half = beatDuration * 0.5f;
         while (true)
         {
-            // scale up/down
+            
             yield return ScaleOverTime(_originalScale, _originalScale * beatScale, half);
             yield return ScaleOverTime(_originalScale * beatScale, _originalScale, half);
 

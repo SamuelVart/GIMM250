@@ -42,7 +42,7 @@ public class OrbController : MonoBehaviour
 
     private void Start()
     {
-        // 1) Assign the correct sprite per type
+        
         switch (orbType)
         {
             case OrbType.Blue:   sr.sprite = blueSprite;   break;
@@ -50,32 +50,28 @@ public class OrbController : MonoBehaviour
             case OrbType.Mixed:  sr.sprite = mixedSprite;  break;
         }
 
-        // 2) Kick off the idle pulse
+        
         if (enablePulse)
             StartCoroutine(PulseLoop());
     }
 
-    /// <summary>
-    /// Continuous pulse: up, down, optional wait.
-    /// </summary>
+    
     private IEnumerator PulseLoop()
     {
         float half = pulseDuration * 0.5f;
         while (true)
         {
-            // scale up
+            
             yield return ScaleOverTime(_originalScale, _originalScale * pulseScale, half);
-            // scale back down
+            
             yield return ScaleOverTime(_originalScale * pulseScale, _originalScale, half);
-            // optional pause
+            
             if (pulseInterval > 0f)
                 yield return new WaitForSeconds(pulseInterval);
         }
     }
 
-    /// <summary>
-    /// Tweens this orb's scale from → to over duration.
-    /// </summary>
+    
     private IEnumerator ScaleOverTime(Vector3 from, Vector3 to, float duration)
     {
         float elapsed = 0f;
@@ -107,9 +103,7 @@ public class OrbController : MonoBehaviour
         col.enabled    = true;
     }
 
-    /// <summary>
-    /// Called on a wrong delivery or manual drop: returns orb to spawn.
-    /// </summary>
+    
     public void Reject()
     {
         Drop();

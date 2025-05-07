@@ -43,7 +43,7 @@ public abstract class ConnectableBehavior : MonoBehaviour
         lineRenderer.SetPosition(0, transform.position);
         lineRenderer.SetPosition(1, mousePos);
 
-        // temporarily disable this collider so we don't hit ourselves
+         
         selfCollider.enabled = false;
         var hit = Physics2D.CircleCast(
             transform.position,
@@ -59,11 +59,11 @@ public abstract class ConnectableBehavior : MonoBehaviour
 
     protected virtual void OnMouseDown()
     {
-        // **only** swirls (not nodes) break on a single click
+        
         if (!(this is NodeBehavior) && IsConnected())
             BreakConnection();
 
-        // then begin a fresh drag
+        
         isDragging              = true;
         wasDragCancelled        = false;
         lineRenderer.enabled    = true;
@@ -82,14 +82,14 @@ public abstract class ConnectableBehavior : MonoBehaviour
 
         isDragging = false;
 
-        // try to snap to any target in radius
+        
         Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         var hits         = Physics2D.OverlapCircleAll(mousePos, dragSnapRadius);
         foreach (var h in hits)
             if (TryConnectToTarget(h))
                 return;
 
-        // no connection found → reset preview
+        
         lineRenderer.enabled    = false;
         lineRenderer.positionCount = 0;
         ResetVisuals();
@@ -120,15 +120,12 @@ public abstract class ConnectableBehavior : MonoBehaviour
         spriteRenderer.color = originalColor;
     }
 
-    /// <summary>
-    /// Called on mouse-up over each collider in the snap radius, in order.
-    /// Return true if that collider resulted in a successful connection.
-    /// </summary>
+    
     protected abstract bool TryConnectToTarget(Collider2D hit);
 
-    /// <summary>True if this object currently has any active connection.</summary>
+    
     public abstract bool IsConnected();
 
-    /// <summary>Break any existing connection immediately.</summary>
+    
     public abstract void BreakConnection();
 }

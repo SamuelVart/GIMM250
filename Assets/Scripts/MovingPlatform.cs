@@ -18,21 +18,21 @@ public class MovingPlatform : MonoBehaviour
 
     void Start()
     {
-        // Initialize position & target
+        
         transform.position = startAtA ? pointA.position : pointB.position;
         _target = startAtA ? pointB.position : pointA.position;
     }
 
     void Update()
     {
-        // Move toward the current target
+        
         transform.position = Vector3.MoveTowards(
             transform.position,
             _target,
             speed * Time.deltaTime
         );
 
-        // When we arrive, flip the target
+        
         if (Vector3.Distance(transform.position, _target) < 0.01f)
         {
             _target = (_target == pointA.position)
@@ -41,7 +41,7 @@ public class MovingPlatform : MonoBehaviour
         }
     }
 
-    // Visualize the path in the Scene view
+    
     private void OnDrawGizmos()
     {
         if (pointA != null && pointB != null)

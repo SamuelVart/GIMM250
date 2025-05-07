@@ -5,16 +5,16 @@ using UnityEngine;
 [RequireComponent(typeof(Collider2D), typeof(SpriteRenderer))]
 public class DoorController : MonoBehaviour
 {
-    private Collider2D   doorCollider;
+    private Collider2D     doorCollider;
     private SpriteRenderer spriteRenderer;
 
     [Header("Transparency Settings")]
-    [Range(0f, 1f)] public float openAlpha   = 0.3f;
+    [Range(0f, 1f)] public float openAlpha     = 0.3f;
                       public float closedAlpha = 1f;
 
     [Header("Scale Animation Settings")]
-    public float punchScaleAmount = 0.1f;
-    public float punchDuration    = 0.1f;
+    public float punchScaleAmount              = 0.1f;
+    public float punchDuration                 = 0.1f;
 
     private Vector3 originalScale;
 

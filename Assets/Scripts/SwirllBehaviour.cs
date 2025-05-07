@@ -5,6 +5,9 @@ using Random = UnityEngine.Random;
 [RequireComponent(typeof(LineRenderer), typeof(Collider2D), typeof(SpriteRenderer))]
 public class SwirlBehavior : ConnectableBehavior
 {
+    [Header("SFX")]
+    public AudioClip SFX;
+
     [Header("Swirl Settings")]
     public int swirlID;
     public Color hoverColor            = Color.cyan;
@@ -13,25 +16,24 @@ public class SwirlBehavior : ConnectableBehavior
     public float maxSpeed            = 360f;
     
     [SerializeField]
-    private static readonly (int, int)[] validConnections = { (0,1), (2,3), (4,5), (6,7) }; // Add the partner swirls here 
+    // Add Partner Swirls Here
+    private static readonly (int, int)[] validConnections = { (0,1), (2,3), (4,5), (6,7) };  
     public static int connectionCounter = 0;
 
     [Header("Connection Direction")]
     [SerializeField]
-    [Tooltip("If false, role is auto-computed by tuple order")]
     private bool useManualDirection         = false;
     [SerializeField]
-    [Tooltip("May this swirl initiate drags (swirl→swirl/node)?")]
+    [Tooltip("This swirl initiate drags (swirl→swirl/node)?")]
     private bool canInitiateSwirlConnection = false;
-
-    //── internal state ───────────────────────────────────────────────────────────
+ 
     private float         rotationSpeed;
     private SwirlBehavior connectedSwirl;
     private bool          isConnected;
     private NodeBehavior  connectedNode;
     private bool          isConnectedToNode;
     private bool          connectionCounted;
-    private bool          isTerminal = false;   // true if this swirl is the terminal of a node chain
+    private bool          isTerminal = false;   
 
 
     //───────────────────────────────────────────────────────────────────────────────
@@ -47,8 +49,7 @@ public class SwirlBehavior : ConnectableBehavior
     }
 
     private bool DetermineInitiationRole()
-    {
-        // lower-ID listed first → parent that may initiate
+    { 
         foreach (var p in validConnections)
             if (p.Item1 == swirlID)
                 return true;
@@ -60,7 +61,7 @@ public class SwirlBehavior : ConnectableBehavior
         base.Update();
         transform.Rotate(0,0, rotationSpeed * Time.deltaTime);
 
-        // door-cut swirl↔swirl
+        // door-cut swirl ↔ swirl
         if (isConnected && connectedSwirl != null)
         {
             var hit = Physics2D.Linecast(
@@ -73,46 +74,35 @@ public class SwirlBehavior : ConnectableBehavior
                 connectedSwirl.BreakConnection();
             }
         }
-    }
-
-    // ← NEW: allow terminal swirl to break its node chain on a single tap
-    // SwirlBehavior.cs (inside class)
+    } 
 
     protected override void OnMouseDown()
-    {
-        // 1) TERMINAL‐SWIRL TAP: sever just the swirl→node link
+    { 
         if (isTerminal)
-        {
-            // grab the node I'm holding
+        { 
             var node = connectedNode;
             if (node != null)
                 node.BreakTerminalLink();
-
-            // clear my end
+ 
             BreakNodeConnection();
             return;
         }
-
-        // 2) DRAG‐BREAK (parent swirl): click+drag on a swirl→node should also
-        //    sever just that link, then start the drag in one go
-        // NEW: drag‐break severs the whole chain, then starts a fresh drag
+ 
         if (isConnectedToNode)
         {
-            BreakConnection();     // uses our patched override to drop the full node‐chain
-            base.OnMouseDown();    // immediately go into drag mode
+            BreakConnection();    
+            base.OnMouseDown();     
             return;
         }
-
-
-        // 3) SWIRL↔SWIRL TAP: any tap breaks that link on a single click
+        
         if (connectedSwirl != null)
         {
             var other = connectedSwirl;
             if (canInitiateSwirlConnection)
             {
-                BreakConnection();      // this decrements for me
+                BreakConnection();       
                 other.BreakConnection();
-                base.OnMouseDown();     // then start a fresh drag
+                base.OnMouseDown();      
             }
             else
             {
@@ -133,7 +123,7 @@ public class SwirlBehavior : ConnectableBehavior
 
     protected override bool TryConnectToTarget(Collider2D hit)
     {
-        // ── swirl→node ─────────────────────────────────────────────────────────
+        // ── swirl → node 
         if (hit.CompareTag("Node"))
         {
             if (isTerminal)
@@ -147,10 +137,12 @@ public class SwirlBehavior : ConnectableBehavior
                 node.ConnectToSwirl(this);
 
                 lineRenderer.SetPosition(1, node.transform.position);
+                AudioSource.PlayClipAtPoint(SFX, transform.position);
+
                 return true;
             }
         }
-        // ── directed swirl↔swirl ────────────────────────────────────────────────
+        // ── swirl ↔ swirl  
         else if (hit.CompareTag("Swirl"))
         {
             var other = hit.GetComponent<SwirlBehavior>();
@@ -187,7 +179,7 @@ public class SwirlBehavior : ConnectableBehavior
 
     public override void BreakConnection()
     {
-        // ── swirl↔swirl branch ─────────────────────────────────────────────
+        // ── swirl ↔ swirl 
         if (isConnected)
         {
             if (connectionCounted)
@@ -198,22 +190,20 @@ public class SwirlBehavior : ConnectableBehavior
             connectedSwirl.connectedSwirl = null;
             connectedSwirl                = null;
         }
-        // ── swirl→node branch ─────────────────────────────────────────────
+        // ── swirl → node 
         else if (isConnectedToNode)
         {
-            // break the *whole* node chain (child nodes + terminal swirl)
             if (connectedNode != null)
                 connectedNode.BreakConnection();
 
-            // undo our end
             isTerminal        = false;
             connectedNode     = null;
             isConnectedToNode = false;
         }
-
-        // common teardown
+        
         lineRenderer.enabled       = false;
         lineRenderer.positionCount = 0;
+        AudioSource.PlayClipAtPoint(SFX, transform.position);
         ResetVisuals();
     }
 
@@ -225,7 +215,7 @@ public class SwirlBehavior : ConnectableBehavior
     {
         Debug.Log("✨ Puzzle Completed! ✨");
         FindObjectOfType<FadeController>()?
-            .StartFadeAndLoadScene("House");
+            .StartFadeAndLoadScene("Panel8");
     }
 
     public void ReattachNode(NodeBehavior node)

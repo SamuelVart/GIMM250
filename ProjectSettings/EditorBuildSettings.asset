@@ -5,12 +5,6 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 0
-    path: Assets/Scenes/SampleScene.unity
-    guid: 8c9cfa26abfee488c85f1582747f6a02
-  - enabled: 0
-    path: Assets/Scenes/TestScene.unity
-    guid: 7252cc5fddf794f409548b585f83d55f
   - enabled: 1
     path: Assets/Scenes/MainMenu.unity
     guid: 088923eca6caa4484a5f465afcb47f09
@@ -18,7 +12,7 @@ EditorBuildSettings:
     path: Assets/Scenes/Panel1.unity
     guid: 3d88d44cdf6b145f19026fc5ea0ec1ed
   - enabled: 1
-    path: Assets/Scenes/House.unity
+    path: Assets/Scenes/House_Stomach.unity
     guid: 22d7892a03e1d4248a0067958994d68a
   - enabled: 1
     path: Assets/Scenes/Game1.unity
@@ -30,14 +24,32 @@ EditorBuildSettings:
     path: Assets/Scenes/Panel5.unity
     guid: bc5ae8e8e717742dcbdb5e0095aaa648
   - enabled: 1
+    path: Assets/Scenes/House_Brain.unity
+    guid: b5905c4b39f0642e5ab4a5fcc547e2e6
+  - enabled: 1
+    path: Assets/Scenes/Game2.unity
+    guid: 26c6e535856f44882a4cb94b18bdbf80
+  - enabled: 1
     path: Assets/Scenes/Panel8.unity
     guid: 6c8e3aef176f44acd98463bece27f084
   - enabled: 1
     path: Assets/Scenes/Panel9.unity
     guid: f000f10a804b34968a4c047e9b20b11f
   - enabled: 1
+    path: Assets/Scenes/House_Heart.unity
+    guid: 975042ceca5294fe2bc5a55627564fb6
+  - enabled: 1
+    path: Assets/Scenes/Game3.unity
+    guid: 9d7ecc566451e4e95b2fa7e24a18aa46
+  - enabled: 1
     path: Assets/Scenes/Panel12.unity
     guid: 1844aba6332e4460babe8b37a2b519ca
+  - enabled: 1
+    path: Assets/Scenes/Panel13.unity
+    guid: c80e7834a51e142c88209d0686d38158
+  - enabled: 1
+    path: Assets/Scenes/WinningScreen.unity
+    guid: bb3dd4108999f465bb4dde011046c03b
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0

@@ -19,7 +19,7 @@ public class Podiums : MonoBehaviour
 
     private void Start()
     {
-        // Ensure the panel is hidden at level start
+        
         if (textBoxPanel != null)
             textBoxPanel.SetActive(false);
         if (messageText != null)
@@ -30,7 +30,7 @@ public class Podiums : MonoBehaviour
     {
         if (other.CompareTag("Player") && textBoxPanel != null)
         {
-            // Show panel and set its text
+            
             textBoxPanel.SetActive(true);
             messageText.text = message;
         }
@@ -40,7 +40,7 @@ public class Podiums : MonoBehaviour
     {
         if (other.CompareTag("Player") && textBoxPanel != null)
         {
-            // Hide panel
+            
             textBoxPanel.SetActive(false);
             messageText.text = null;
         }
