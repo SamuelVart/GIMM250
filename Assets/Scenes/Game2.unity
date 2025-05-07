@@ -1470,7 +1470,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4137778099039506005, guid: 09754c8bab7ff4c8b9993aadb13a6674, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 10.66
+      value: 8.43
       objectReference: {fileID: 0}
     - target: {fileID: 4137778099039506005, guid: 09754c8bab7ff4c8b9993aadb13a6674, type: 3}
       propertyPath: m_LocalPosition.z
@@ -6158,6 +6158,14 @@ PrefabInstance:
       propertyPath: observerField
       value: 
       objectReference: {fileID: 1314892811}
+    - target: {fileID: 9064908411383831873, guid: c6458d3120f474e069b9050563f566fb, type: 3}
+      propertyPath: m_Size.y
+      value: 1.9761379
+      objectReference: {fileID: 0}
+    - target: {fileID: 9064908411383831873, guid: c6458d3120f474e069b9050563f566fb, type: 3}
+      propertyPath: m_Offset.y
+      value: 0.011931062
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
