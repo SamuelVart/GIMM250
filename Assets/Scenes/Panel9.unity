@@ -268,6 +268,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: DialogueSystem
       objectReference: {fileID: 0}
+    - target: {fileID: 1628348876897381454, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: -841.6219
+      objectReference: {fileID: 0}
+    - target: {fileID: 1628348876897381454, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 370.8109
+      objectReference: {fileID: 0}
     - target: {fileID: 2540489492279354990, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
       propertyPath: pauseAnimation
       value: 
@@ -331,6 +339,14 @@ PrefabInstance:
     - target: {fileID: 2540489492279354990, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
       propertyPath: 'lines.Array.data[10]'
       value: ' Friend: Sorry Blob. See you next time.'
+      objectReference: {fileID: 0}
+    - target: {fileID: 4568803954467895401, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 204.3028
+      objectReference: {fileID: 0}
+    - target: {fileID: 4568803954467895401, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -1.2044
       objectReference: {fileID: 0}
     - target: {fileID: 9195412974942093818, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
       propertyPath: m_LocalPosition.x
