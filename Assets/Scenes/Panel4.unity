@@ -268,6 +268,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: DialogueSystem
       objectReference: {fileID: 0}
+    - target: {fileID: 1628348876897381454, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: -903.5068
+      objectReference: {fileID: 0}
+    - target: {fileID: 1628348876897381454, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 401.75336
+      objectReference: {fileID: 0}
     - target: {fileID: 2540489492279354990, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
       propertyPath: textSpeed
       value: 0.1
@@ -284,6 +292,14 @@ PrefabInstance:
       propertyPath: 'lines.Array.data[0]'
       value: ' Something seems to have changed for Blob. But he doesn''t have time
         to think about it, because he wants to meet his friends.'
+      objectReference: {fileID: 0}
+    - target: {fileID: 4568803954467895401, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 148.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 4568803954467895401, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0.000014305
       objectReference: {fileID: 0}
     - target: {fileID: 9195412974942093818, guid: a20b0ecc19a934244ba7db8686ddbe58, type: 3}
       propertyPath: m_LocalPosition.x
